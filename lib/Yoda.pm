@@ -58,7 +58,7 @@ it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-Keith Broughton E<lt>keithbro256@gmail.comE<gt>
+Keith Broughton C<< <keithbro [AT] cpan.org> >>
 
 =cut
 

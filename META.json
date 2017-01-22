@@ -1,7 +1,7 @@
 {
    "abstract" : "Perl port of Ramda",
    "author" : [
-      "Keith Broughton <keithbro256@gmail.com>"
+      "Keith Broughton C<< <keithbro [AT] cpan.org> >>"
    ],
    "dynamic_config" : 0,
    "generated_by" : "Minilla/v3.0.9, CPAN::Meta::Converter version 2.150005",
@@ -52,7 +52,21 @@
       }
    },
    "release_status" : "unstable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/keithbro/yoda/issues"
+      },
+      "homepage" : "https://github.com/keithbro/yoda",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/keithbro/yoda.git",
+         "web" : "https://github.com/keithbro/yoda"
+      }
+   },
    "version" : "0.01",
    "x_authority" : "cpan:KEITHBRO",
+   "x_contributors" : [
+      "Keith Broughton <keithbro256@gmail.com>"
+   ],
    "x_serialization_backend" : "JSON::PP version 2.27300"
 }

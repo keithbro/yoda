@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/keithbro/yoda.svg?branch=master)](https://travis-ci.org/keithbro/yoda)
 ## map
 
     Functor f => (a -> b) -> f a -> f b
@@ -23,4 +24,4 @@ it under the same terms as Perl itself.
 
 # AUTHOR
 
-Keith Broughton <keithbro256@gmail.com>
+Keith Broughton `<keithbro [AT] cpan.org>`
