@@ -1,4 +1,8 @@
 [![Build Status](https://travis-ci.org/keithbro/yoda.svg?branch=master)](https://travis-ci.org/keithbro/yoda)
+## filter
+
+    Filterable f => (a -> Boolean) -> f a -> f a
+
 ## map
 
     Functor f => (a -> b) -> f a -> f b
