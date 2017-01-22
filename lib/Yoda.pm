@@ -21,6 +21,19 @@ Yoda is a practical functional library for Perl programmers.
 
 =head1 FUNCTIONS
 
+=head2 always
+
+    a -> (* -> a)
+
+=cut
+
+sub always {
+    _curry1(sub {
+        my ($const) = @_;
+        sub { $const }
+    }, @_);
+}
+
 =head2 append
 
     a -> [a] -> [a]
@@ -31,6 +44,42 @@ sub append {
     _curry2(sub {
         my ($element, $values) = @_;
         return [ @$values, $element ];
+    }, @_);
+}
+
+=head2 cond
+
+    [[(*... -> Bool),(*... -> *)]] → (*... -> *)
+
+=cut
+
+sub cond {
+    _curry1(sub {
+        my ($predicate_transformer_pairs) = @_;
+
+        return sub {
+            my ($value) = @_;
+
+            for my $pair (@$predicate_transformer_pairs) {
+                return $pair->[1]->($value) if $pair->[0]->($value);
+            }
+
+            return undef;
+        };
+    }, @_);
+}
+
+=head2 equals
+
+    a -> b -> Bool
+
+=cut
+
+sub equals {
+    _curry2(sub {
+        my ($x, $y) = @_;
+        my ($ok) = cmp_details($x, $y);
+        return $ok;
     }, @_);
 }
 
@@ -130,7 +179,7 @@ sub prop {
 
 =head2 reduce_by
 
-    ((a, b) -> a) -> a -> (b -> String) -> [b] -> {Str: a}
+    ((a, b) -> a) -> a -> (b -> Str) -> [b] -> {Str: a}
 
 =cut
 
@@ -163,6 +212,14 @@ sub reject {
         return [ grep { !$predicate->($_) } @$filterable ];
     }, @_);
 }
+
+=head2 T
+
+    * -> Bool
+
+=cut
+
+sub T { sub { 1 } }
 
 =head2 transpose
 
