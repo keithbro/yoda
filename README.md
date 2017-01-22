@@ -23,7 +23,7 @@ Yoda is a practical functional library for Perl programmers.
 
 ## cond
 
-    [[(*... -> Bool),(*... -> *)]] → (*... -> *)
+    [[(*... -> Bool),(*... -> *)]] -> (*... -> *)
 
 ## equals
 
@@ -88,11 +88,3 @@ it under the same terms as Perl itself.
 # AUTHOR
 
 Keith Broughton `<keithbro [AT] cpan.org>`
-
-# POD ERRORS
-
-Hey! **The above document had some coding errors, which are explained below:**
-
-- Around line 52:
-
-    Non-ASCII character seen before =encoding in '→'. Assuming UTF-8
