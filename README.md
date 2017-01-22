@@ -54,6 +54,10 @@ Yoda is a practical functional library for Perl programmers.
 
     Filterable f => (a -> Bool) -> f a -> f a
 
+## transpose
+
+    [[a]] -> [[a]]
+
 ## where\_eq
 
     {Str: *} -> {Str: *} -> Bool

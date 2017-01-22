@@ -164,6 +164,30 @@ sub reject {
     }, @_);
 }
 
+=head2 transpose
+
+    [[a]] -> [[a]]
+
+=cut
+
+sub transpose {
+    _curry1(sub {
+        my ($arrayrefs) = @_;
+
+        my $index = 0;
+        my @transposed_arrayrefs;
+        while (1) {
+            my @transposed_arrayref =
+                grep { defined } map { $_->[$index] } @$arrayrefs;
+
+            scalar @transposed_arrayref or return \@transposed_arrayrefs;
+
+            push @transposed_arrayrefs, \@transposed_arrayref;
+            $index++;
+        }
+    }, @_);
+}
+
 =head2 where_eq
 
     {Str: *} -> {Str: *} -> Bool
