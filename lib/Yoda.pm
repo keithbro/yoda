@@ -7,7 +7,7 @@ our $VERSION = "0.01";
 
 =head2 map
 
-    Functor f => (a → b) → f a → f b
+    Functor f => (a → b) -> f a -> f b
 
 =cut
 
