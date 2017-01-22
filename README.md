@@ -15,7 +15,12 @@ Yoda is a practical functional library for Perl programmers.
 
 ## filter
 
-    Filterable f => (a -> Boolean) -> f a -> f a
+    Filterable f => (a -> Bool) -> f a -> f a
+
+## head
+
+    [a] -> a | undef
+    Str -> Str
 
 ## juxt
 
@@ -27,15 +32,15 @@ Yoda is a practical functional library for Perl programmers.
 
 ## partition
 
-    Filterable f => (a -> Boolean) -> f a -> [f a, f a]
+    Filterable f => (a -> Bool) -> f a -> [f a, f a]
 
 ## reject
 
-    Filterable f => (a -> Boolean) -> f a -> f a
+    Filterable f => (a -> Bool) -> f a -> f a
 
 ## where\_eq
 
-    {String: *} -> {String: *} -> Boolean
+    {Str: *} -> {Str: *} -> Bool
 
 # LICENSE
 

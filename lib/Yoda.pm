@@ -23,7 +23,7 @@ Yoda is a practical functional library for Perl programmers.
 
 =head2 filter
 
-    Filterable f => (a -> Boolean) -> f a -> f a
+    Filterable f => (a -> Bool) -> f a -> f a
 
 =cut
 
@@ -31,6 +31,22 @@ sub filter {
     _curry2(sub {
         my ($predicate, $filterable) = @_;
         return [ grep { $predicate->($_) } @$filterable ];
+    }, @_);
+}
+
+=head2 head
+
+    [a] -> a | undef
+    Str -> Str
+
+=cut
+
+sub head {
+    _curry_n(1, sub {
+        my ($list_or_string) = @_;
+        return ref($list_or_string)
+            ? $list_or_string->[0]
+            : substr($list_or_string, 0, 1);
     }, @_);
 }
 
@@ -62,7 +78,7 @@ sub map {
 
 =head2 partition
 
-    Filterable f => (a -> Boolean) -> f a -> [f a, f a]
+    Filterable f => (a -> Bool) -> f a -> [f a, f a]
 
 =cut
 
@@ -75,7 +91,7 @@ sub partition {
 
 =head2 reject
 
-    Filterable f => (a -> Boolean) -> f a -> f a
+    Filterable f => (a -> Bool) -> f a -> f a
 
 =cut
 
@@ -88,7 +104,7 @@ sub reject {
 
 =head2 where_eq
 
-    {String: *} -> {String: *} -> Boolean
+    {Str: *} -> {Str: *} -> Bool
 
 =cut
 
