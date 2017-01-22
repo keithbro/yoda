@@ -3,7 +3,23 @@ use 5.008001;
 use strict;
 use warnings;
 
+use Test::Deep::NoTest qw(cmp_details superhashof);
+
 our $VERSION = "0.01";
+
+=head1 NAME
+
+Yoda - Perl port of Ramda
+
+=head1 SYNOPSIS
+
+    use Yoda;
+
+=head1 DESCRIPTION
+
+Yoda is a practical functional library for Perl programmers.
+
+=head1 FUNCTIONS
 
 =head2 filter
 
@@ -18,6 +34,19 @@ sub filter {
     }, @_);
 }
 
+=head2 juxt
+
+    [(a, b, ..., m) -> n] -> ((a, b, ..., m) -> [n])
+
+=cut
+
+sub juxt {
+    _curry2(sub {
+        my ($functions, @args) = @_;
+        return [ map { $_->(@args) } @$functions ];
+    }, @_);
+}
+
 =head2 map
 
     Functor f => (a -> b) -> f a -> f b
@@ -28,6 +57,46 @@ sub map {
     _curry2(sub {
         my ($function, $functor) = @_;
         return [ map { $function->($_) } @$functor ];
+    }, @_);
+}
+
+=head2 partition
+
+    Filterable f => (a -> Boolean) -> f a -> [f a, f a]
+
+=cut
+
+sub partition {
+    _curry2(sub {
+        my ($predicate, $filterable) = @_;
+        return juxt( [ \&filter, \&reject ], $predicate, $filterable );
+    }, @_);
+}
+
+=head2 reject
+
+    Filterable f => (a -> Boolean) -> f a -> f a
+
+=cut
+
+sub reject {
+    _curry2(sub {
+        my ($predicate, $filterable) = @_;
+        return [ grep { !$predicate->($_) } @$filterable ];
+    }, @_);
+}
+
+=head2 where_eq
+
+    {String: *} -> {String: *} -> Boolean
+
+=cut
+
+sub where_eq {
+    _curry2(sub {
+        my ($spec, $test) = @_;
+        my ($ok) = cmp_details($test, superhashof($spec));
+        return $ok;
     }, @_);
 }
 
@@ -46,21 +115,6 @@ sub _curry_n {
 }
 
 1;
-__END__
-
-=encoding utf-8
-
-=head1 NAME
-
-Yoda - Perl port of Ramda
-
-=head1 SYNOPSIS
-
-    use Yoda;
-
-=head1 DESCRIPTION
-
-Yoda is a practical functional library for Perl programmers.
 
 =head1 LICENSE
 

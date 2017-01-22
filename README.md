@@ -1,12 +1,4 @@
 [![Build Status](https://travis-ci.org/keithbro/yoda.svg?branch=master)](https://travis-ci.org/keithbro/yoda)
-## filter
-
-    Filterable f => (a -> Boolean) -> f a -> f a
-
-## map
-
-    Functor f => (a -> b) -> f a -> f b
-
 # NAME
 
 Yoda - Perl port of Ramda
@@ -18,6 +10,32 @@ Yoda - Perl port of Ramda
 # DESCRIPTION
 
 Yoda is a practical functional library for Perl programmers.
+
+# FUNCTIONS
+
+## filter
+
+    Filterable f => (a -> Boolean) -> f a -> f a
+
+## juxt
+
+    [(a, b, ..., m) -> n] -> ((a, b, ..., m) -> [n])
+
+## map
+
+    Functor f => (a -> b) -> f a -> f b
+
+## partition
+
+    Filterable f => (a -> Boolean) -> f a -> [f a, f a]
+
+## reject
+
+    Filterable f => (a -> Boolean) -> f a -> f a
+
+## where\_eq
+
+    {String: *} -> {String: *} -> Boolean
 
 # LICENSE
 
