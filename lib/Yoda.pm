@@ -5,6 +5,19 @@ use warnings;
 
 our $VERSION = "0.01";
 
+=head2 filter
+
+    Filterable f => (a -> Boolean) -> f a -> f a
+
+=cut
+
+sub filter {
+    _curry2(sub {
+        my ($predicate, $filterable) = @_;
+        return [ grep { $predicate->($_) } @$filterable ];
+    }, @_);
+}
+
 =head2 map
 
     Functor f => (a -> b) -> f a -> f b
