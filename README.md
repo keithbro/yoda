@@ -42,6 +42,10 @@ Yoda is a practical functional library for Perl programmers.
     [a] -> a | undef
     Str -> Str
 
+## intersection
+
+    [*] -> [*] -> [*]
+
 ## juxt
 
     [(a, b, ..., m) -> n] -> ((a, b, ..., m) -> [n])

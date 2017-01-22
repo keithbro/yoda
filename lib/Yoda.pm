@@ -125,6 +125,32 @@ sub head {
     }, @_);
 }
 
+=head2 intersection
+
+    [*] -> [*] -> [*]
+
+=cut
+
+sub intersection {
+    _curry2(sub {
+        my ($x, $y) = @_;
+
+        my $is_element_in_x = { map { $_ => 1 } @$x };
+        my $is_element_in_y = { map { $_ => 1 } @$y };
+
+        my ($lookup, $filter);
+        if (scalar @$x < scalar @$y) {
+            $lookup = $is_element_in_x;
+            $filter = $is_element_in_y;
+        } else {
+            $lookup = $is_element_in_y;
+            $filter = $is_element_in_x;
+        }
+
+        return [ sort grep { $lookup->{$_} } keys %$filter ];
+    }, @_);
+}
+
 =head2 juxt
 
     [(a, b, ..., m) -> n] -> ((a, b, ..., m) -> [n])
