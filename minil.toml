@@ -1,0 +1,6 @@
+name = "Yoda"
+# badges = ["travis"]
+authority="cpan:KEITHBRO"
+
+module_maker="ModuleBuildTiny"
+
