@@ -98,6 +98,10 @@ Yoda is a practical functional library for Perl programmers.
 
     [[a]] -> [[a]]
 
+## try\_catch
+
+    (...x -> a) -> ((e, ...x) -> a) -> (...x -> a)
+
 ## uniq
 
     [a] -> [a]
