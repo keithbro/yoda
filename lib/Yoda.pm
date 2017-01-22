@@ -177,6 +177,19 @@ sub prop {
     }, @_);
 }
 
+=head2 reduce
+
+    ((a, b) -> a) -> a -> [b] -> a
+
+=cut
+
+sub reduce {
+    _curry3(sub {
+        my ($func, $initial_value, $elements) = @_;
+        List::Util::reduce { $func->($a, $b) } $initial_value, @$elements;
+    }, @_);
+}
+
 =head2 reduce_by
 
     ((a, b) -> a) -> a -> (b -> Str) -> [b] -> {Str: a}
@@ -212,6 +225,14 @@ sub reject {
         return [ grep { !$predicate->($_) } @$filterable ];
     }, @_);
 }
+
+=head2 subtract
+
+    Num -> Num -> Num
+
+=cut
+
+sub subtract { _curry2(sub { shift() - shift() }, @_) }
 
 =head2 T
 

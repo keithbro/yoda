@@ -58,6 +58,10 @@ Yoda is a practical functional library for Perl programmers.
 
     s -> {s: a} -> a | Undefined
 
+## reduce
+
+    ((a, b) -> a) -> a -> [b] -> a
+
 ## reduce\_by
 
     ((a, b) -> a) -> a -> (b -> Str) -> [b] -> {Str: a}
@@ -65,6 +69,10 @@ Yoda is a practical functional library for Perl programmers.
 ## reject
 
     Filterable f => (a -> Bool) -> f a -> f a
+
+## subtract
+
+    Num -> Num -> Num
 
 ## T
 
