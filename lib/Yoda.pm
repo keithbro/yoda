@@ -179,6 +179,26 @@ sub map {
     }, @_);
 }
 
+=head2 memoize
+
+    (*... -> a) -> (*... -> a)
+
+=cut
+
+sub memoize {
+    _curry1(sub {
+        my ($func) = @_;
+
+        my %memo;
+        return sub {
+            my $key = encode_json(\@_);
+
+            return $memo{$key} if exists $memo{$key};
+            return $memo{$key} = $func->(@_);
+        };
+    }, @_);
+}
+
 =head2 partition
 
     Filterable f => (a -> Bool) -> f a -> [f a, f a]
@@ -192,6 +212,23 @@ sub partition {
     }, @_);
 }
 
+=head2 product
+
+    [Num] -> Num
+
+=cut
+
+sub product {
+    _curry1(sub {
+        my ($numbers) = @_;
+
+        my $value = 1;
+        $value = $value * $_ for @$numbers;
+
+        return $value;
+    }, @_);
+}
+
 =head2 prop
 
     s -> {s: a} -> a | Undefined
@@ -202,6 +239,19 @@ sub prop {
     _curry2(sub {
         my ($key, $hashref) = @_;
         return $hashref->{$key};
+    }, @_);
+}
+
+=head2 range
+
+    Num -> Num -> [Num]
+
+=cut
+
+sub range {
+    _curry2(sub {
+        my ($from, $to) = @_;
+        return [ $from .. $to ];
     }, @_);
 }
 

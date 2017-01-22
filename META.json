@@ -42,6 +42,7 @@
       },
       "runtime" : {
          "requires" : {
+            "JSON::XS" : "0",
             "perl" : "5.008001"
          }
       },

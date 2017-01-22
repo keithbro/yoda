@@ -54,13 +54,25 @@ Yoda is a practical functional library for Perl programmers.
 
     Functor f => (a -> b) -> f a -> f b
 
+## memoize
+
+    (*... -> a) -> (*... -> a)
+
 ## partition
 
     Filterable f => (a -> Bool) -> f a -> [f a, f a]
 
+## product
+
+    [Num] -> Num
+
 ## prop
 
     s -> {s: a} -> a | Undefined
+
+## range
+
+    Num -> Num -> [Num]
 
 ## reduce
 
