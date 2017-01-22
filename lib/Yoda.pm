@@ -39,7 +39,7 @@ __END__
 
 =head1 NAME
 
-Yoda - It's new $module
+Yoda - Perl port of Ramda
 
 =head1 SYNOPSIS
 
@@ -47,7 +47,7 @@ Yoda - It's new $module
 
 =head1 DESCRIPTION
 
-Yoda is ...
+Yoda is a practical functional library for Perl programmers.
 
 =head1 LICENSE
 

@@ -1,5 +1,5 @@
 {
-   "abstract" : "It's new $module",
+   "abstract" : "Perl port of Ramda",
    "author" : [
       "Keith Broughton <keithbro256@gmail.com>"
    ],

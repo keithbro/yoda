@@ -4,7 +4,7 @@
 
 # NAME
 
-Yoda - It's new $module
+Yoda - Perl port of Ramda
 
 # SYNOPSIS
 
@@ -12,7 +12,7 @@ Yoda - It's new $module
 
 # DESCRIPTION
 
-Yoda is ...
+Yoda is a practical functional library for Perl programmers.
 
 # LICENSE
 
