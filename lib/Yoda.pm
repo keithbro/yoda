@@ -5,6 +5,7 @@ use warnings;
 
 use JSON::XS qw(encode_json);
 use Test::Deep::NoTest qw(cmp_details superhashof);
+use Try::Tiny;
 
 our $VERSION = "0.01";
 
@@ -341,6 +342,27 @@ sub transpose {
             push @transposed_arrayrefs, \@transposed_arrayref;
             $index++;
         }
+    }, @_);
+}
+
+=head2 try_catch
+
+    (...x -> a) -> ((e, ...x) -> a) -> (...x -> a)
+
+=cut
+
+sub try_catch {
+    _curry2(sub {
+        my ($tryer, $catcher) = @_;
+
+        return sub {
+            my @args = @_;
+            try {
+                $tryer->(@args);
+            } catch {
+                $catcher->($_);
+            };
+        };
     }, @_);
 }
 
