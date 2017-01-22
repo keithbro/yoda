@@ -21,6 +21,19 @@ Yoda is a practical functional library for Perl programmers.
 
 =head1 FUNCTIONS
 
+=head2 append
+
+    a -> [a] -> [a]
+
+=cut
+
+sub append {
+    _curry2(sub {
+        my ($element, $values) = @_;
+        return [ @$values, $element ];
+    }, @_);
+}
+
 =head2 filter
 
     Filterable f => (a -> Bool) -> f a -> f a
@@ -31,6 +44,19 @@ sub filter {
     _curry2(sub {
         my ($predicate, $filterable) = @_;
         return [ grep { $predicate->($_) } @$filterable ];
+    }, @_);
+}
+
+=head2 group_by
+
+    (a -> Str) -> [a] -> {Str: [a]}
+
+=cut
+
+sub group_by {
+    _curry2(sub {
+        my ($function, $elements) = @_;
+        return reduce_by(append(), [], $function, $elements);
     }, @_);
 }
 
@@ -86,6 +112,42 @@ sub partition {
     _curry2(sub {
         my ($predicate, $filterable) = @_;
         return juxt( [ \&filter, \&reject ], $predicate, $filterable );
+    }, @_);
+}
+
+=head2 prop
+
+    s -> {s: a} -> a | Undefined
+
+=cut
+
+sub prop {
+    _curry2(sub {
+        my ($key, $hashref) = @_;
+        return $hashref->{$key};
+    }, @_);
+}
+
+=head2 reduce_by
+
+    ((a, b) -> a) -> a -> (b -> String) -> [b] -> {Str: a}
+
+=cut
+
+sub reduce_by {
+    _curry_n(4, sub {
+        my ($value_func, $initial_value, $key_func, $elements) = @_;
+
+        my %h;
+
+        for my $element (@$elements) {
+            my $key = $key_func->($element);
+            my $value = $h{$key} // $initial_value;
+            $h{$key} = $value_func->($element, $value);
+        }
+
+        return \%h;
+
     }, @_);
 }
 

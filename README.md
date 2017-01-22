@@ -13,9 +13,17 @@ Yoda is a practical functional library for Perl programmers.
 
 # FUNCTIONS
 
+## append
+
+    a -> [a] -> [a]
+
 ## filter
 
     Filterable f => (a -> Bool) -> f a -> f a
+
+## group\_by
+
+    (a -> Str) -> [a] -> {Str: [a]}
 
 ## head
 
@@ -33,6 +41,14 @@ Yoda is a practical functional library for Perl programmers.
 ## partition
 
     Filterable f => (a -> Bool) -> f a -> [f a, f a]
+
+## prop
+
+    s -> {s: a} -> a | Undefined
+
+## reduce\_by
+
+    ((a, b) -> a) -> a -> (b -> String) -> [b] -> {Str: a}
 
 ## reject
 
