@@ -3,6 +3,7 @@ use 5.008001;
 use strict;
 use warnings;
 
+use JSON::XS qw(encode_json);
 use Test::Deep::NoTest qw(cmp_details superhashof);
 
 our $VERSION = "0.01";
@@ -135,19 +136,20 @@ sub intersection {
     _curry2(sub {
         my ($x, $y) = @_;
 
-        my $is_element_in_x = { map { $_ => 1 } @$x };
-        my $is_element_in_y = { map { $_ => 1 } @$y };
-
         my ($lookup, $filter);
         if (scalar @$x < scalar @$y) {
-            $lookup = $is_element_in_x;
-            $filter = $is_element_in_y;
+            $lookup = _uniq($x);
+            $filter = _uniq($y);
         } else {
-            $lookup = $is_element_in_y;
-            $filter = $is_element_in_x;
+            $lookup = _uniq($y);
+            $filter = _uniq($x);
         }
 
-        return [ sort grep { $lookup->{$_} } keys %$filter ];
+        return [
+            map { $filter->{$_} }
+            grep { $lookup->{$_} }
+            keys %$filter
+        ];
     }, @_);
 }
 
@@ -292,6 +294,28 @@ sub transpose {
     }, @_);
 }
 
+=head2 uniq
+
+    [a] -> [a]
+
+=cut
+
+sub uniq {
+    _curry1(sub {
+        my ($elements) = @_;
+        my $element_for_string = _uniq($elements);
+        return [ values %$element_for_string ];
+    }, @_);
+}
+
+=head2 union
+
+    [*] -> [*] -> [*]
+
+=cut
+
+sub union { _curry2(sub { uniq( [ map { @$_ } @_ ] ) }, @_) }
+
 =head2 where_eq
 
     {Str: *} -> {Str: *} -> Bool
@@ -318,6 +342,20 @@ sub _curry_n {
     }
 
     return sub { $func->(@args, @_) };
+}
+
+# _uniq
+#
+#    [a] -> {Str: a}
+#
+# Given a list, returns a HashRef where the keys are a unique Str representation
+# of each element and the values are the (unique) elements.
+
+sub _uniq {
+    _curry1(sub {
+        my ($elements) = @_;
+        return { map { ref($_) ? encode_json($_) : $_ => $_ } @$elements };
+    }, @_);
 }
 
 1;
