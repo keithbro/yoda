@@ -13,9 +13,21 @@ Yoda is a practical functional library for Perl programmers.
 
 # FUNCTIONS
 
+## always
+
+    a -> (* -> a)
+
 ## append
 
     a -> [a] -> [a]
+
+## cond
+
+    [[(*... -> Bool),(*... -> *)]] → (*... -> *)
+
+## equals
+
+    a -> b -> Bool
 
 ## filter
 
@@ -48,11 +60,15 @@ Yoda is a practical functional library for Perl programmers.
 
 ## reduce\_by
 
-    ((a, b) -> a) -> a -> (b -> String) -> [b] -> {Str: a}
+    ((a, b) -> a) -> a -> (b -> Str) -> [b] -> {Str: a}
 
 ## reject
 
     Filterable f => (a -> Bool) -> f a -> f a
+
+## T
+
+    * -> Bool
 
 ## transpose
 
@@ -72,3 +88,11 @@ it under the same terms as Perl itself.
 # AUTHOR
 
 Keith Broughton `<keithbro [AT] cpan.org>`
+
+# POD ERRORS
+
+Hey! **The above document had some coding errors, which are explained below:**
+
+- Around line 52:
+
+    Non-ASCII character seen before =encoding in '→'. Assuming UTF-8
