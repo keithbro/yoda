@@ -48,9 +48,9 @@ transformer. If none of the predicates matches, fn returns \`undef\`.
         [equals(100), always('water boils at 100°C')],
         [T(),         sub { 'nothing special happens at ' . shift() . '°C' }],
     ]);
-    fn(0);   # 'water freezes at 0°C'
-    fn(50);  # 'nothing special happens at 50°C'
-    fn(100); # 'water boils at 100°C'
+    $fn->(0);   # 'water freezes at 0°C'
+    $fn->(50);  # 'nothing special happens at 50°C'
+    $fn->(100); # 'water boils at 100°C'
 
 ## equals
 
