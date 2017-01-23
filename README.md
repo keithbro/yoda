@@ -20,7 +20,7 @@ Yoda is a practical functional library for Perl programmers.
 Returns a function that always returns the given value.
 
     my $t = always('Tee');
-    t(); # 'Tee'
+    $t->(); # 'Tee'
 
 ## append
 
