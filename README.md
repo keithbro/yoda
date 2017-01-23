@@ -17,6 +17,11 @@ Yoda is a practical functional library for Perl programmers.
 
     a -> (* -> a)
 
+Returns a function that always returns the given value.
+
+    my $t = always('Tee');
+    t(); # 'Tee'
+
 ## append
 
     a -> [a] -> [a]
