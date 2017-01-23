@@ -10,7 +10,7 @@ use Try::Tiny;
 
 our $VERSION = "0.01";
 
-our @EXPORT_OK = qw(always map);
+our @EXPORT_OK = qw(always append);
 
 =head1 NAME
 
@@ -48,12 +48,18 @@ sub always {
 
     a -> [a] -> [a]
 
+Returns a new list containing the contents of the given $list, followed by the given $element.
+
+    append('tests', ['write', 'more']);     # ['write', 'more', 'tests']
+    append('tests', []);                    # ['tests']
+    append(['tests'], ['write', 'more']);   # ['write', 'more', ['tests']]
+
 =cut
 
 sub append {
     _curry2(sub {
-        my ($element, $values) = @_;
-        return [ @$values, $element ];
+        my ($element, $list) = @_;
+        return [ @$list, $element ];
     }, @_);
 }
 
@@ -217,7 +223,7 @@ sub memoize {
 sub partition {
     _curry2(sub {
         my ($predicate, $filterable) = @_;
-        return juxt( [ \&filter, \&reject ], $predicate, $filterable );
+        return juxt( [ filter(), reject() ], $predicate, $filterable );
     }, @_);
 }
 

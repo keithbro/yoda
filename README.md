@@ -26,6 +26,12 @@ Returns a function that always returns the given value.
 
     a -> [a] -> [a]
 
+Returns a new list containing the contents of the given $list, followed by the given $element.
+
+    append('tests', ['write', 'more']);     # ['write', 'more', 'tests']
+    append('tests', []);                    # ['tests']
+    append(['tests'], ['write', 'more']);   # ['write', 'more', ['tests']]
+
 ## cond
 
     [[(*... -> Bool),(*... -> *)]] -> (*... -> *)
