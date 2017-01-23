@@ -13,7 +13,7 @@ our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
     always append cond contains equals filter group_by head intersection juxt
-    max memoize min product range T zip_with
+    max memoize min product range T unfold zip_with
 );
 
 =encoding utf-8
@@ -555,6 +555,40 @@ sub try_catch {
                 $catcher->($_);
             };
         };
+    }, @_);
+}
+
+=head2 unfold
+
+    (a -> [b]) -> * -> [b]
+
+Builds a list from a seed value. Accepts an iterator function, which returns
+either a falsey value to stop iteration or an array of length 2 containing the
+value to add to the resulting list and the seed to be used in the next call to
+the iterator function.
+
+The iterator function receives one argument: (seed).
+
+    my $f = sub { my ($n) = @_; $n > 50 ? '' : [-$n, $n + 10] };
+
+    unfold($f, 10); # [-10, -20, -30, -40, -50];
+
+
+=cut
+
+sub unfold {
+    _curry2(sub {
+        my ($func, $seed) = @_;
+
+        my $pair = $func->($seed);
+        my @result;
+
+        while ($pair && scalar @$pair) {
+            push @result, $pair->[0];
+            $pair = $func->($pair->[1]);
+        }
+
+        return \@result;
     }, @_);
 }
 

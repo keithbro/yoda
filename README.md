@@ -251,6 +251,21 @@ Returns the smaller of its two arguments.
 
     (...x -> a) -> ((e, ...x) -> a) -> (...x -> a)
 
+## unfold
+
+    (a -> [b]) -> * -> [b]
+
+Builds a list from a seed value. Accepts an iterator function, which returns
+either a falsey value to stop iteration or an array of length 2 containing the
+value to add to the resulting list and the seed to be used in the next call to
+the iterator function.
+
+The iterator function receives one argument: (seed).
+
+    my $f = sub { my ($n) = @_; $n > 50 ? '' : [-$n, $n + 10] };
+
+    unfold($f, 10); # [-10, -20, -30, -40, -50];
+
 ## uniq
 
     [a] -> [a]
