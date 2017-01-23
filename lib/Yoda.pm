@@ -13,7 +13,7 @@ our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
     always append cond contains equals filter group_by head intersection juxt
-    max memoize min product range T
+    max memoize min product range T zip_with
 );
 
 =encoding utf-8
@@ -591,6 +591,31 @@ sub where_eq {
         my ($spec, $test) = @_;
         my ($ok) = cmp_details($test, superhashof($spec));
         return $ok;
+    }, @_);
+}
+
+=head2 zip_with
+
+    (a -> b -> c) -> [a] -> [b] -> [c]
+
+Creates a new list out of the two supplied by applying the function to each
+equally-positioned pair in the lists. The returned list is truncated to the
+length of the shorter of the two input lists.
+
+    my $f = sub { my ($x, $y) = @_; ... };
+
+    zipWith($f, [1, 2, 3], ['a', 'b', 'c']);
+    # [f->(1, 'a'), f->(2, 'b'), f->(3, 'c')]
+
+=cut
+
+sub zip_with {
+    _curry3(sub {
+        my ($func, $x, $y) = @_;
+
+        my $min = min(scalar @$x, scalar @$y) - 1;
+
+        return [ map { $func->($x->[$_], $y->[$_]) } 0 .. $min ];
     }, @_);
 }
 
