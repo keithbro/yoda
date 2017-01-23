@@ -12,6 +12,8 @@ our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(always append cond contains equals T);
 
+=encoding utf-8
+
 =head1 NAME
 
 Yoda - Perl port of Ramda
