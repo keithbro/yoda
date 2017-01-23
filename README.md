@@ -149,6 +149,11 @@ common to both lists.
 
     [(a, b, ..., m) -> n] -> ((a, b, ..., m) -> [n])
 
+juxt applies a list of functions to a list of values.
+
+    my $get_range = juxt([min(), max()]);
+    $get_range->(3, 4, 9, -3); # [-3, 9]
+
 ## map
 
     Functor f => (a -> b) -> f a -> f b
@@ -156,6 +161,22 @@ common to both lists.
 ## memoize
 
     (*... -> a) -> (*... -> a)
+
+## max
+
+    [Num] -> Num
+
+Returns the larger of its two arguments.
+
+    R.max(789, 123); # 789
+
+## min
+
+    [Num] -> Num
+
+Returns the smaller of its two arguments.
+
+    R.min(789, 123); # 123
 
 ## partition
 

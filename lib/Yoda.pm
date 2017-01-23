@@ -5,13 +5,15 @@ use warnings;
 
 use Exporter 'import';
 use JSON::XS qw(encode_json);
+use List::Util qw();
 use Test::Deep::NoTest qw(cmp_details superhashof);
 use Try::Tiny;
 
 our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
-    always append cond contains equals filter group_by head intersection T
+    always append cond contains equals filter group_by head intersection juxt
+    max min T
 );
 
 =encoding utf-8
@@ -282,12 +284,17 @@ sub intersection {
 
     [(a, b, ..., m) -> n] -> ((a, b, ..., m) -> [n])
 
+juxt applies a list of functions to a list of values.
+
+    my $get_range = juxt([min(), max()]);
+    $get_range->(3, 4, 9, -3); # [-3, 9]
+
 =cut
 
 sub juxt {
     _curry2(sub {
-        my ($functions, @args) = @_;
-        return [ map { $_->(@args) } @$functions ];
+        my ($functions, @values) = @_;
+        return [ map { $_->(@values) } @$functions ];
     }, @_);
 }
 
@@ -323,6 +330,30 @@ sub memoize {
         };
     }, @_);
 }
+
+=head2 max
+
+    [Num] -> Num
+
+Returns the larger of its two arguments.
+
+    R.max(789, 123); # 789
+
+=cut
+
+sub max { _curry2(sub { List::Util::max(@_) }, @_) }
+
+=head2 min
+
+    [Num] -> Num
+
+Returns the smaller of its two arguments.
+
+    R.min(789, 123); # 123
+
+=cut
+
+sub min { _curry2(sub { List::Util::min(@_) }, @_) }
 
 =head2 partition
 
