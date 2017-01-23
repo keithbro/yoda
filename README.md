@@ -59,6 +59,11 @@ transformer. If none of the predicates matches, fn returns \`undef\`.
 Returns 1 if the specified value is equal, in \`equals\` terms, to at least one
 element of the given list; or the empty string otherwise.
 
+    contains(3, [1, 2, 3]); # 1
+    contains(4, [1, 2, 3]); # ''
+    contains({ name: 'Fred' }, [{ name: 'Fred' }]); # 1
+    contains([42], [[42]]); # 1
+
 ## equals
 
     a -> b -> Bool
