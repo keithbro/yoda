@@ -1,11 +1,19 @@
 use Test::Most;
 
-use Yoda;
+use Yoda qw(filter);
+
+my $isEven = sub { shift() % 2 == 0 };
 
 eq_or_diff(
-    Yoda::filter(sub { shift() % 3 == 0 }, [ 2, 4, 6, 8 ]),
-    [ 6 ],
-    'filter over array',
+    filter( $isEven, [ 1, 2, 3, 4 ] ),
+    [ 2, 4 ],
+    'filter an array',
+);
+
+eq_or_diff(
+    filter( $isEven, { a => 1, b => 2, c => 3, d => 4 } ),
+    { b => 2, d => 4 },
+    'filter a HashRef',
 );
 
 done_testing;

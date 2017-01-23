@@ -10,7 +10,7 @@ use Try::Tiny;
 
 our $VERSION = "0.01";
 
-our @EXPORT_OK = qw(always append cond contains equals T);
+our @EXPORT_OK = qw(always append cond contains equals filter T);
 
 =encoding utf-8
 
@@ -154,12 +154,31 @@ sub equals {
 
     Filterable f => (a -> Bool) -> f a -> f a
 
+Takes a predicate and a "filterable", and returns a new filterable of the same
+type containing the members of the given filterable which satisfy the given
+predicate.
+
+    my $isEven = sub { shift() % 2 == 0 };
+
+    filter($isEven, [1, 2, 3, 4]); # [2, 4]
+
+    filter($isEven, {a => 1, b => 2, c => 3, d => 4}); # {b => 2, d => 4}
+
 =cut
 
 sub filter {
     _curry2(sub {
         my ($predicate, $filterable) = @_;
-        return [ grep { $predicate->($_) } @$filterable ];
+
+        if (ref($filterable) eq 'ARRAY') {
+            return [ grep { $predicate->($_) } @$filterable ];
+        }
+
+        return {
+            map { $_ => $filterable->{$_} }
+            grep { $predicate->($filterable->{$_}) }
+            keys %$filterable
+        };
     }, @_);
 }
 

@@ -79,6 +79,16 @@ does not handles cyclical data structures, unlike Ramda.
 
     Filterable f => (a -> Bool) -> f a -> f a
 
+Takes a predicate and a "filterable", and returns a new filterable of the same
+type containing the members of the given filterable which satisfy the given
+predicate.
+
+    my $isEven = sub { shift() % 2 == 0 };
+
+    filter($isEven, [1, 2, 3, 4]); # [2, 4]
+
+    filter($isEven, {a => 1, b => 2, c => 3, d => 4}); # {b => 2, d => 4}
+
 ## group\_by
 
     (a -> Str) -> [a] -> {Str: [a]}
