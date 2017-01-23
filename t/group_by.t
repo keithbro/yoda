@@ -1,22 +1,31 @@
 use Test::Most;
 
-use lib 't/lib';
+use Yoda qw(group_by);
 
-use Data::Dumper;
+my $by_grade = group_by(
+    sub {
+        my ($student) = @_;
+        my $score = $student->{score};
+        return $score < 65 ? 'F' :
+               $score < 70 ? 'D' :
+               $score < 80 ? 'C' :
+               $score < 90 ? 'B' : 'A';
+    }
+);
 
-use Yoda;
-use Yoda::Test;
-
-my $tasks = Yoda::Test::tasks;
+my $students = [
+    {name => 'Abby', score => 84},
+    {name => 'Eddy', score => 58},
+    {name => 'Jack', score => 69},
+];
 
 eq_or_diff(
-    Yoda::group_by( Yoda::prop('username'), $tasks ),
+    $by_grade->($students),
     {
-        keith => [ $tasks->[0] ],
-        rachel => [ $tasks->[1] ],
-        shane => [ $tasks->[2], $tasks->[3] ],
+        'B' => [{name => 'Abby', score => 84}],
+        'D' => [{name => 'Jack', score => 69}],
+        'F' => [{name => 'Eddy', score => 58}],
     },
-    'group_by',
 );
 
 done_testing;

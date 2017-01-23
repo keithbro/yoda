@@ -10,7 +10,7 @@ use Try::Tiny;
 
 our $VERSION = "0.01";
 
-our @EXPORT_OK = qw(always append cond contains equals filter T);
+our @EXPORT_OK = qw(always append cond contains equals filter group_by T);
 
 =encoding utf-8
 
@@ -186,14 +186,13 @@ sub filter {
 
     (a -> Str) -> [a] -> {Str: [a]}
 
+Splits a list into sub-lists stored in an object, based on the result of calling
+a String-returning function on each element, and grouping the results according
+to values returned.
+
 =cut
 
-sub group_by {
-    _curry2(sub {
-        my ($function, $elements) = @_;
-        return reduce_by(append(), [], $function, $elements);
-    }, @_);
-}
+sub group_by { _curry2(sub { reduce_by(append(), [], @_) }, @_) }
 
 =head2 head
 
