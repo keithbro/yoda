@@ -13,7 +13,7 @@ our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
     always append cond contains equals filter group_by head intersection juxt
-    max min T
+    max memoize min product range T
 );
 
 =encoding utf-8
@@ -331,9 +331,38 @@ sub map {
     }, @_);
 }
 
+=head2 max
+
+    [Num] -> Num
+
+Returns the larger of its two arguments.
+
+    R.max(789, 123); # 789
+
+=cut
+
+sub max { _curry2(sub { List::Util::max(@_) }, @_) }
+
 =head2 memoize
 
     (*... -> a) -> (*... -> a)
+
+Creates a new function that, when invoked, caches the result of calling fn for a
+given argument set and returns the result. Subsequent calls to the memoized fn
+with the same argument set will not result in an additional call to fn; instead,
+the cached result for that set of arguments will be returned.
+
+    my $count = 0;
+
+    my $factorial = memoize(sub {
+        my ($n) = @_;
+        $count++;
+        return product(range(1, $n));
+    });
+
+    $factorial->(5); # 120
+    $factorial->(5); # 120
+    $count; # 1
 
 =cut
 
@@ -350,18 +379,6 @@ sub memoize {
         };
     }, @_);
 }
-
-=head2 max
-
-    [Num] -> Num
-
-Returns the larger of its two arguments.
-
-    R.max(789, 123); # 789
-
-=cut
-
-sub max { _curry2(sub { List::Util::max(@_) }, @_) }
 
 =head2 min
 

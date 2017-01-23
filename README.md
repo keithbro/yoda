@@ -170,10 +170,6 @@ function may be applied to \[1, 2, 3\] or {x => 1, y => 2, z => 3}.
 
     Yoda::map($double, {x => 1, y => 2, z => 3}) # {x => 2, y => 4, z => 6}
 
-## memoize
-
-    (*... -> a) -> (*... -> a)
-
 ## max
 
     [Num] -> Num
@@ -181,6 +177,27 @@ function may be applied to \[1, 2, 3\] or {x => 1, y => 2, z => 3}.
 Returns the larger of its two arguments.
 
     R.max(789, 123); # 789
+
+## memoize
+
+    (*... -> a) -> (*... -> a)
+
+Creates a new function that, when invoked, caches the result of calling fn for a
+given argument set and returns the result. Subsequent calls to the memoized fn
+with the same argument set will not result in an additional call to fn; instead,
+the cached result for that set of arguments will be returned.
+
+    my $count = 0;
+
+    my $factorial = memoize(sub {
+        my ($n) = @_;
+        $count++;
+        return product(range(1, $n));
+    });
+
+    $factorial->(5); # 120
+    $factorial->(5); # 120
+    $count; # 1
 
 ## min
 
