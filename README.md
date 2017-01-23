@@ -128,6 +128,8 @@ to values returned.
     [a] -> a | undef
     Str -> Str
 
+Returns the first element of the given list or string.
+
 ## intersection
 
     [*] -> [*] -> [*]

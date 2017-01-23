@@ -10,7 +10,7 @@ use Try::Tiny;
 
 our $VERSION = "0.01";
 
-our @EXPORT_OK = qw(always append cond contains equals filter group_by T);
+our @EXPORT_OK = qw(always append cond contains equals filter group_by head T);
 
 =encoding utf-8
 
@@ -224,6 +224,8 @@ sub group_by { _curry2(sub { reduce_by(append(), [], @_) }, @_) }
 
     [a] -> a | undef
     Str -> Str
+
+Returns the first element of the given list or string.
 
 =cut
 
