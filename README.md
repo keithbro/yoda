@@ -131,7 +131,7 @@ to values returned.
 Returns the first element of the given list or string.
 
     head(['fi', 'fo', 'fum']); # 'fi'
-    head([]); # undefined
+    head([]); # undef
 
     head('abc'); # 'a'
     head(''); # ''
@@ -139,6 +139,11 @@ Returns the first element of the given list or string.
 ## intersection
 
     [*] -> [*] -> [*]
+
+Combines two lists into a set (i.e. no duplicates) composed of those elements
+common to both lists.
+
+    intersection([1,2,3,4], [7,6,5,4,3]); # [4, 3]
 
 ## juxt
 

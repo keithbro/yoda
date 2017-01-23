@@ -10,7 +10,9 @@ use Try::Tiny;
 
 our $VERSION = "0.01";
 
-our @EXPORT_OK = qw(always append cond contains equals filter group_by head T);
+our @EXPORT_OK = qw(
+    always append cond contains equals filter group_by head intersection T
+);
 
 =encoding utf-8
 
@@ -228,7 +230,7 @@ sub group_by { _curry2(sub { reduce_by(append(), [], @_) }, @_) }
 Returns the first element of the given list or string.
 
     head(['fi', 'fo', 'fum']); # 'fi'
-    head([]); # undefined
+    head([]); # undef
 
     head('abc'); # 'a'
     head(''); # ''
@@ -247,6 +249,11 @@ sub head {
 =head2 intersection
 
     [*] -> [*] -> [*]
+
+Combines two lists into a set (i.e. no duplicates) composed of those elements
+common to both lists.
+
+    intersection([1,2,3,4], [7,6,5,4,3]); # [4, 3]
 
 =cut
 
