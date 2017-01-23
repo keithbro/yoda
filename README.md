@@ -130,6 +130,12 @@ to values returned.
 
 Returns the first element of the given list or string.
 
+    head(['fi', 'fo', 'fum']); # 'fi'
+    head([]); # undefined
+
+    head('abc'); # 'a'
+    head(''); # ''
+
 ## intersection
 
     [*] -> [*] -> [*]

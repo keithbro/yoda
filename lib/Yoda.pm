@@ -227,6 +227,12 @@ sub group_by { _curry2(sub { reduce_by(append(), [], @_) }, @_) }
 
 Returns the first element of the given list or string.
 
+    head(['fi', 'fo', 'fum']); # 'fi'
+    head([]); # undefined
+
+    head('abc'); # 'a'
+    head(''); # ''
+
 =cut
 
 sub head {
