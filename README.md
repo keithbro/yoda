@@ -158,6 +158,18 @@ juxt applies a list of functions to a list of values.
 
     Functor f => (a -> b) -> f a -> f b
 
+Takes a function and a functor, applies the function to each of the functor's
+values, and returns a functor of the same shape.
+
+Yoda provides suitable map implementations for ArrayRef and HashRef, so this
+function may be applied to \[1, 2, 3\] or {x => 1, y => 2, z => 3}.
+
+    my $double = sub { shift() * 2 };
+
+    Yoda::map($double, [1, 2, 3]) # [2, 4, 6]
+
+    Yoda::map($double, {x => 1, y => 2, z => 3}) # {x => 2, y => 4, z => 6}
+
 ## memoize
 
     (*... -> a) -> (*... -> a)
