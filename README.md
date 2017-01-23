@@ -52,6 +52,13 @@ transformer. If none of the predicates matches, fn returns \`undef\`.
     $fn->(50);  # 'nothing special happens at 50°C'
     $fn->(100); # 'water boils at 100°C'
 
+## contains
+
+    a -> [a] -> Bool
+
+Returns 1 if the specified value is equal, in \`equals\` terms, to at least one
+element of the given list; or the empty string otherwise.
+
 ## equals
 
     a -> b -> Bool

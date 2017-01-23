@@ -10,7 +10,7 @@ use Try::Tiny;
 
 our $VERSION = "0.01";
 
-our @EXPORT_OK = qw(always append cond equals T);
+our @EXPORT_OK = qw(always append cond contains equals T);
 
 =head1 NAME
 
@@ -101,6 +101,28 @@ sub cond {
     }, @_);
 }
 
+=head2 contains
+
+    a -> [a] -> Bool
+
+Returns 1 if the specified value is equal, in `equals` terms, to at least one
+element of the given list; or the empty string otherwise.
+
+=cut
+
+sub contains {
+    _curry2(sub {
+        my ($value, $list) = @_;
+        my $value_as_string = _to_string($value);
+
+        for my $element (@$list) {
+            return 1 if _to_string($element) eq $value_as_string;
+        }
+
+        return '';
+    }, @_);
+}
+
 =head2 equals
 
     a -> b -> Bool
@@ -110,8 +132,7 @@ sub cond {
 sub equals {
     _curry2(sub {
         my ($x, $y) = @_;
-        my ($ok) = cmp_details($x, $y);
-        return $ok;
+        return _to_string($x) eq _to_string($y);
     }, @_);
 }
 
@@ -446,6 +467,11 @@ sub _curry_n {
     return sub { $func->(@args, @_) };
 }
 
+sub _to_string {
+    my ($value) = @_;
+    return ref($value) ? encode_json($value) : $value;
+}
+
 # _uniq
 #
 #    [a] -> {Str: a}
@@ -456,7 +482,7 @@ sub _curry_n {
 sub _uniq {
     _curry1(sub {
         my ($elements) = @_;
-        return { map { ref($_) ? encode_json($_) : $_ => $_ } @$elements };
+        return { map { _to_string($_) => $_ } @$elements };
     }, @_);
 }
 
