@@ -3,11 +3,14 @@ use 5.008001;
 use strict;
 use warnings;
 
+use Exporter 'import';
 use JSON::XS qw(encode_json);
 use Test::Deep::NoTest qw(cmp_details superhashof);
 use Try::Tiny;
 
 our $VERSION = "0.01";
+
+our @EXPORT_OK = qw(always map);
 
 =head1 NAME
 
@@ -26,6 +29,11 @@ Yoda is a practical functional library for Perl programmers.
 =head2 always
 
     a -> (* -> a)
+
+Returns a function that always returns the given value.
+
+    my $t = always('Tee');
+    t(); # 'Tee'
 
 =cut
 

@@ -1,5 +1,4 @@
-use strict;
-use Test::More 0.98;
+use Test::Most;
 
 use_ok $_ for qw(
     Yoda
