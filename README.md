@@ -68,6 +68,13 @@ element of the given list; or the empty string otherwise.
 
     a -> b -> Bool
 
+Returns 1 if its arguments are equivalent, the empty string otherwise. Currently
+does not handles cyclical data structures, unlike Ramda.
+
+    equals(1, 1); # 1
+    equals(1, '1'); # ''
+    equals([1, 2, 3], [1, 2, 3]); # 1
+
 ## filter
 
     Filterable f => (a -> Bool) -> f a -> f a

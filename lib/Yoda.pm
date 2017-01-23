@@ -132,6 +132,13 @@ sub contains {
 
     a -> b -> Bool
 
+Returns 1 if its arguments are equivalent, the empty string otherwise. Currently
+does not handles cyclical data structures, unlike Ramda.
+
+    equals(1, 1); # 1
+    equals(1, '1'); # ''
+    equals([1, 2, 3], [1, 2, 3]); # 1
+
 =cut
 
 sub equals {
@@ -474,7 +481,7 @@ sub _curry_n {
 
 sub _to_string {
     my ($value) = @_;
-    return ref($value) ? encode_json($value) : $value;
+    return ref($value) ? encode_json($value) : encode_json({ a => $value });
 }
 
 # _uniq
