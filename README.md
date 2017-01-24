@@ -14,6 +14,26 @@ Yoda - Perl port of Ramda
 
 Yoda is a practical functional library for Perl programmers.
 
+# ETYMOLOGY
+
+In-keeping with the ovine theme, the name comes from a mispronunciation that I
+heard in the West of Ireland of the word "ewe" as /jəʊ/ (yo), and the "da" from
+Ramda and lambda at the end. Also, who wouldn't want to call their project
+Yoda!?
+
+Or functionally,
+
+    my $pronunce_syllable = if_else(
+        equals('ewe'), always('yo'), identity(),
+    );
+
+    my $pronunce_syllables = compose(
+        Yoda::join(''),
+        Yoda::map($pronunce_syllable),
+    );
+
+    $pronunce_syllables->(['ewe', 'da']); # yoda
+
 # FUNCTIONS
 
 ## add
@@ -388,26 +408,6 @@ length of the shorter of the two input lists.
 
     zipWith($f, [1, 2, 3], ['a', 'b', 'c']);
     # [f->(1, 'a'), f->(2, 'b'), f->(3, 'c')]
-
-# ETYMOLOGY
-
-In-keeping with the ovine theme, the name comes from a mispronunciation that I
-heard in the West of Ireland of the word "ewe" as /jəʊ/ (yo), and the "da" from
-Ramda and lambda at the end. Also, who wouldn't want to call their project
-Yoda!?
-
-Or functionally,
-
-    my $pronunce_syllable = if_else(
-        equals('ewe'), always('yo'), identity(),
-    );
-
-    my $pronunce_syllables = compose(
-        Yoda::join(''),
-        Yoda::map($pronunce_syllable),
-    );
-
-    $pronunce_syllables->(['ewe', 'da']); # yoda
 
 # LICENSE
 
