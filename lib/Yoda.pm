@@ -14,7 +14,7 @@ our $VERSION = "0.01";
 our @EXPORT_OK = qw(
     add always append compose concat cond contains equals filter group_by head
     identity if_else intersection juxt max memoize min multiply product range
-    reduce T to_upper unfold zip_with
+    reduce subtract T to_upper unfold zip_with
 );
 
 =encoding utf-8
@@ -614,14 +614,22 @@ sub range {
 
 =head2 reduce
 
-    ((a, b) -> a) -> a -> [b] -> a
+    (a -> b -> a) -> a -> [b] -> a
+
+Returns a single item by iterating through the list, successively calling the
+iterator function and passing it an accumulator value and the current value from
+the array, and then passing the result to the next call.
+
+The iterator function receives two values: (acc, value).
+
+    reduce(subtract, 0, [1, 2, 3, 4]) # ((((0 - 1) - 2) - 3) - 4) = -10
 
 =cut
 
 sub reduce {
     _curry3(sub {
-        my ($func, $initial_value, $elements) = @_;
-        List::Util::reduce { $func->($a, $b) } $initial_value, @$elements;
+        my ($iterator, $initial_value, $list) = @_;
+        List::Util::reduce { $iterator->($a, $b) } $initial_value, @$list;
     }, @_);
 }
 
@@ -683,7 +691,7 @@ sub T { sub { 1 } }
 
 Returns the upper case version of a string.
 
-    toUpper('abc'); # 'ABC'
+    to_upper('abc'); # 'ABC'
 
 =cut
 

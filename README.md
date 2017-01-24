@@ -335,7 +335,15 @@ Multiples two numbers.
 
 ## reduce
 
-    ((a, b) -> a) -> a -> [b] -> a
+    (a -> b -> a) -> a -> [b] -> a
+
+Returns a single item by iterating through the list, successively calling the
+iterator function and passing it an accumulator value and the current value from
+the array, and then passing the result to the next call.
+
+The iterator function receives two values: (acc, value).
+
+    reduce(subtract, 0, [1, 2, 3, 4]) # ((((0 - 1) - 2) - 3) - 4) = -10
 
 ## reduce\_by
 
@@ -359,7 +367,7 @@ Multiples two numbers.
 
 Returns the upper case version of a string.
 
-    toUpper('abc'); # 'ABC'
+    to_upper('abc'); # 'ABC'
 
 ## transpose
 

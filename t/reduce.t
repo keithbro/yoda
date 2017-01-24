@@ -1,9 +1,9 @@
 use Test::Most;
 
-use Yoda;
+use Yoda qw(reduce subtract);
 
 is(
-    Yoda::reduce(Yoda::subtract, 0, [1, 2, 3, 4]), -10,
+    reduce(subtract, 0, [1, 2, 3, 4]), -10,
     'reduce + subtract',
 );
 
