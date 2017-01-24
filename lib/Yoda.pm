@@ -34,6 +34,27 @@ Yoda - Perl port of Ramda
 
 Yoda is a practical functional library for Perl programmers.
 
+=head1 ETYMOLOGY
+
+In-keeping with the ovine theme, the name comes from a mispronunciation that I
+heard in the West of Ireland of the word "ewe" as /jəʊ/ (yo), and the "da" from
+Ramda and lambda at the end. Also, who wouldn't want to call their project
+Yoda!?
+
+Or functionally,
+
+    my $pronunce_syllable = if_else(
+        equals('ewe'), always('yo'), identity(),
+    );
+
+    my $pronunce_syllables = compose(
+        Yoda::join(''),
+        Yoda::map($pronunce_syllable),
+    );
+
+    $pronunce_syllables->(['ewe', 'da']); # yoda
+
+
 =head1 FUNCTIONS
 
 =head2 add
@@ -842,26 +863,6 @@ sub _uniq {
 }
 
 1;
-
-=head1 ETYMOLOGY
-
-In-keeping with the ovine theme, the name comes from a mispronunciation that I
-heard in the West of Ireland of the word "ewe" as /jəʊ/ (yo), and the "da" from
-Ramda and lambda at the end. Also, who wouldn't want to call their project
-Yoda!?
-
-Or functionally,
-
-    my $pronunce_syllable = if_else(
-        equals('ewe'), always('yo'), identity(),
-    );
-
-    my $pronunce_syllables = compose(
-        Yoda::join(''),
-        Yoda::map($pronunce_syllable),
-    );
-
-    $pronunce_syllables->(['ewe', 'da']); # yoda
 
 =head1 LICENSE
 
