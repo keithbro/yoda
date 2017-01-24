@@ -65,6 +65,17 @@ Note: The result of compose is not automatically curried.
 
     compose($abs, add(1), multiply(2))->(-4); # 7
 
+## concat
+
+    [a] -> [a] -> [a]
+    Str -> Str -> Str
+
+Returns the result of concatenating the given lists or strings.
+
+    concat('ABC', 'DEF'); # ABCDEF
+    concat([4, 5, 6], [1, 2, 3]); # [4, 5, 6, 1, 2, 3]
+    concat([], []); # []
+
 ## cond
 
     [[(*... -> Bool),(*... -> *)]] -> (*... -> *)
@@ -76,13 +87,13 @@ which point fn returns the result of applying its arguments to the corresponding
 transformer. If none of the predicates matches, fn returns \`undef\`.
 
     my $fn = cond([
-        [equals(0),   always('water freezes at 0°C')],
-        [equals(100), always('water boils at 100°C')],
-        [T(),         sub { 'nothing special happens at ' . shift() . '°C' }],
+        [equals(0),   always('water freezes at 0Â°C')],
+        [equals(100), always('water boils at 100Â°C')],
+        [T(),         sub { 'nothing special happens at ' . shift() . 'Â°C' }],
     ]);
-    $fn->(0);   # 'water freezes at 0°C'
-    $fn->(50);  # 'nothing special happens at 50°C'
-    $fn->(100); # 'water boils at 100°C'
+    $fn->(0);   # 'water freezes at 0Â°C'
+    $fn->(50);  # 'nothing special happens at 50Â°C'
+    $fn->(100); # 'water boils at 100Â°C'
 
 ## contains
 
@@ -168,6 +179,34 @@ Returns the first element of the given list or string.
     head('abc'); # 'a'
     head(''); # ''
 
+## identity
+
+    a -> a
+
+A function that does nothing but return the parameter supplied to it. Good as a
+default or placeholder function.
+
+    identity(1); # 1
+
+    my $obj = {};
+    identity($obj); # $obj;
+
+## if\_else
+
+    (*... -> Bool) -> (*... -> *) -> (*... -> *)
+
+Creates a function that will process either the on\_true or the on\_false function
+depending upon the result of the condition predicate.
+
+    my $pronunce_syllable = if_else(
+        equals('ewe'),
+        always('yo'),
+        identity(),
+    );
+
+    $pronunce_syllable->('ewe'); # yo
+    $pronunce_syllable->('no'); # no
+
 ## intersection
 
     [*] -> [*] -> [*]
@@ -176,6 +215,17 @@ Combines two lists into a set (i.e. no duplicates) composed of those elements
 common to both lists.
 
     intersection([1,2,3,4], [7,6,5,4,3]); # [4, 3]
+
+## join
+
+    Str -> [a] -> Str
+
+Returns a string made by inserting the separator between each element and
+concatenating all the elements into a single string.
+
+    my $spacer = join(' ');
+    $spacer->(['a', 2, 3.4]); # 'a 2 3.4'
+    join('|', [1, 2, 3]); # '1|2|3'
 
 ## juxt
 
@@ -338,6 +388,26 @@ length of the shorter of the two input lists.
 
     zipWith($f, [1, 2, 3], ['a', 'b', 'c']);
     # [f->(1, 'a'), f->(2, 'b'), f->(3, 'c')]
+
+# ETYMOLOGY
+
+In-keeping with the ovine theme, the name comes from a mispronunciation that I
+heard in the West of Ireland of the word "ewe" as /jÉ™ÊŠ/ (yo), and the "da" from
+Ramda and lambda at the end. Also, who wouldn't want to call their project
+Yoda!?
+
+Or functionally,
+
+    my $pronunce_syllable = if_else(
+        equals('ewe'), always('yo'), identity(),
+    );
+
+    my $pronunce_syllables = compose(
+        Yoda::join(''),
+        Yoda::map($pronunce_syllable),
+    );
+
+    $pronunce_syllables->(['ewe', 'da']); # yoda
 
 # LICENSE
 

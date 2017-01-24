@@ -12,9 +12,9 @@ use Try::Tiny;
 our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
-    add always append compose cond contains equals filter group_by head
-    intersection juxt max memoize min multiply product range T to_upper unfold
-    zip_with
+    add always append compose concat cond contains equals filter group_by head
+    identity if_else intersection juxt max memoize min multiply product range
+    reduce T to_upper unfold zip_with
 );
 
 =encoding utf-8
@@ -117,6 +117,31 @@ sub compose {
         @args = $_->(@args) for reverse @funcs;
         $args[0];
     };
+}
+
+=head2 concat
+
+    [a] -> [a] -> [a]
+    Str -> Str -> Str
+
+Returns the result of concatenating the given lists or strings.
+
+    concat('ABC', 'DEF'); # ABCDEF
+    concat([4, 5, 6], [1, 2, 3]); # [4, 5, 6, 1, 2, 3]
+    concat([], []); # []
+
+=cut
+
+sub concat {
+    _curry2(sub {
+        my ($x, $y) = @_;
+
+        if (ref($x) eq 'ARRAY' && ref($y) eq 'ARRAY') {
+            return [ @$x, @$y ];
+        }
+
+        $x.$y;
+    }, @_);
 }
 
 =head2 cond
@@ -289,11 +314,53 @@ Returns the first element of the given list or string.
 =cut
 
 sub head {
-    _curry_n(1, sub {
+    _curry1(sub {
         my ($list_or_string) = @_;
         return ref($list_or_string)
             ? $list_or_string->[0]
             : substr($list_or_string, 0, 1);
+    }, @_);
+}
+
+=head2 identity
+
+    a -> a
+
+A function that does nothing but return the parameter supplied to it. Good as a
+default or placeholder function.
+
+    identity(1); # 1
+
+    my $obj = {};
+    identity($obj); # $obj;
+
+=cut
+
+sub identity { _curry1( sub { $_[0] }, @_ ) }
+
+=head2 if_else
+
+    (*... -> Bool) -> (*... -> *) -> (*... -> *)
+
+Creates a function that will process either the on_true or the on_false function
+depending upon the result of the condition predicate.
+
+    my $pronunce_syllable = if_else(
+        equals('ewe'),
+        always('yo'),
+        identity(),
+    );
+
+    $pronunce_syllable->('ewe'); # yo
+    $pronunce_syllable->('no'); # no
+
+=cut
+
+sub if_else {
+    _curry3(sub {
+        my ($condition, $on_true, $on_false) = @_;
+
+        return sub { $condition->(@_) ? $on_true->(@_) : $on_false->(@_) };
     }, @_);
 }
 
@@ -328,6 +395,21 @@ sub intersection {
         ];
     }, @_);
 }
+
+=head2 join
+
+    Str -> [a] -> Str
+
+Returns a string made by inserting the separator between each element and
+concatenating all the elements into a single string.
+
+    my $spacer = join(' ');
+    $spacer->(['a', 2, 3.4]); # 'a 2 3.4'
+    join('|', [1, 2, 3]); # '1|2|3'
+
+=cut
+
+sub join { _curry2(sub { join( $_[0], @{$_[1]} ) }, @_) }
 
 =head2 juxt
 
@@ -760,6 +842,26 @@ sub _uniq {
 }
 
 1;
+
+=head1 ETYMOLOGY
+
+In-keeping with the ovine theme, the name comes from a mispronunciation that I
+heard in the West of Ireland of the word "ewe" as /jəʊ/ (yo), and the "da" from
+Ramda and lambda at the end. Also, who wouldn't want to call their project
+Yoda!?
+
+Or functionally,
+
+    my $pronunce_syllable = if_else(
+        equals('ewe'), always('yo'), identity(),
+    );
+
+    my $pronunce_syllables = compose(
+        Yoda::join(''),
+        Yoda::map($pronunce_syllable),
+    );
+
+    $pronunce_syllables->(['ewe', 'da']); # yoda
 
 =head1 LICENSE
 
