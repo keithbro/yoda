@@ -5,13 +5,24 @@ Yoda - Perl port of Ramda
 
 # SYNOPSIS
 
-    use Yoda;
+    use Yoda qw(compose memoize product range);
+
+    my $factorial = memoize(compose(product(), range(1)));
+    $factorial->(5); # 120
 
 # DESCRIPTION
 
 Yoda is a practical functional library for Perl programmers.
 
 # FUNCTIONS
+
+## add
+
+    Num -> Num -> Num
+
+Adds two numbers.
+
+    add(3, -10); # -7
 
 ## always
 
@@ -32,6 +43,27 @@ given element.
     append('tests', ['write', 'more']);     # ['write', 'more', 'tests']
     append('tests', []);                    # ['tests']
     append(['tests'], ['write', 'more']);   # ['write', 'more', ['tests']]
+
+## compose
+
+    ((y -> z), (x -> y), ..., (o -> p), ((a, b, ..., n) -> o)) -> ((a, b, ..., n) -> z)
+
+Performs right-to-left function composition. The rightmost function may have any
+arity; the remaining functions must be unary.
+
+Note: The result of compose is not automatically curried.
+
+    my $abs = sub { abs(shift()) };
+
+    my $classy_greeting = sub {
+        sprintf("The name's %s, %s %s.", $_[1], $_[0], $_[1]);
+    };
+
+    my $yell_greeting = compose(to_upper, $classy_greeting);
+
+    $yell_greeting->('James', 'Bond'); # "THE NAME'S BOND, JAMES BOND."
+
+    compose($abs, add(1), multiply(2))->(-4); # 7
 
 ## cond
 
@@ -207,6 +239,14 @@ Returns the smaller of its two arguments.
 
     R.min(789, 123); # 123
 
+## multiply
+
+    Num -> Num -> Num
+
+Multiples two numbers.
+
+    multiply(3, -7); # -21
+
 ## partition
 
     Filterable f => (a -> Bool) -> f a -> [f a, f a]
@@ -242,6 +282,14 @@ Returns the smaller of its two arguments.
 ## T
 
     * -> Bool
+
+## to\_upper
+
+    Str -> Str
+
+Returns the upper case version of a string.
+
+    toUpper('abc'); # 'ABC'
 
 ## transpose
 

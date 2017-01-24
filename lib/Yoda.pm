@@ -12,8 +12,9 @@ use Try::Tiny;
 our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
-    always append cond contains equals filter group_by head intersection juxt
-    max memoize min product range T unfold zip_with
+    add always append compose cond contains equals filter group_by head
+    intersection juxt max memoize min multiply product range T to_upper unfold
+    zip_with
 );
 
 =encoding utf-8
@@ -24,13 +25,28 @@ Yoda - Perl port of Ramda
 
 =head1 SYNOPSIS
 
-    use Yoda;
+    use Yoda qw(compose memoize product range);
+
+    my $factorial = memoize(compose(product(), range(1)));
+    $factorial->(5); # 120
 
 =head1 DESCRIPTION
 
 Yoda is a practical functional library for Perl programmers.
 
 =head1 FUNCTIONS
+
+=head2 add
+
+    Num -> Num -> Num
+
+Adds two numbers.
+
+    add(3, -10); # -7
+
+=cut
+
+sub add { _curry2( sub { $_[0] + $_[1] }, @_ ) }
 
 =head2 always
 
@@ -68,6 +84,39 @@ sub append {
         my ($element, $list) = @_;
         return [ @$list, $element ];
     }, @_);
+}
+
+=head2 compose
+
+    ((y -> z), (x -> y), ..., (o -> p), ((a, b, ..., n) -> o)) -> ((a, b, ..., n) -> z)
+
+Performs right-to-left function composition. The rightmost function may have any
+arity; the remaining functions must be unary.
+
+Note: The result of compose is not automatically curried.
+
+    my $abs = sub { abs(shift()) };
+
+    my $classy_greeting = sub {
+        sprintf("The name's %s, %s %s.", $_[1], $_[0], $_[1]);
+    };
+
+    my $yell_greeting = compose(to_upper, $classy_greeting);
+
+    $yell_greeting->('James', 'Bond'); # "THE NAME'S BOND, JAMES BOND."
+
+    compose($abs, add(1), multiply(2))->(-4); # 7
+
+=cut
+
+sub compose {
+    my @funcs = @_;
+
+    return sub {
+        my @args = @_;
+        @args = $_->(@args) for reverse @funcs;
+        $args[0];
+    };
 }
 
 =head2 cond
@@ -390,7 +439,19 @@ Returns the smaller of its two arguments.
 
 =cut
 
-sub min { _curry2(sub { List::Util::min(@_) }, @_) }
+sub min { _curry2( sub { List::Util::min(@_) }, @_) }
+
+=head2 multiply
+
+    Num -> Num -> Num
+
+Multiples two numbers.
+
+    multiply(3, -7); # -21
+
+=cut
+
+sub multiply { _curry2( sub { shift() * shift() }, @_ ) }
 
 =head2 partition
 
@@ -512,6 +573,18 @@ sub subtract { _curry2(sub { shift() - shift() }, @_) }
 =cut
 
 sub T { sub { 1 } }
+
+=head2 to_upper
+
+    Str -> Str
+
+Returns the upper case version of a string.
+
+    toUpper('abc'); # 'ABC'
+
+=cut
+
+sub to_upper { _curry1( sub { uc( $_[0] ) }, @_ ) }
 
 =head2 transpose
 
