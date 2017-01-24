@@ -127,6 +127,33 @@ element of the given list; or the empty string otherwise.
     contains({ name: 'Fred' }, [{ name: 'Fred' }]); # 1
     contains([42], [[42]]); # 1
 
+## converge
+
+    (x1 → x2 → … → z) → [(a → b → … → x1), (a → b → … → x2), …] → (a → b → … → z)
+
+Accepts a converging function and a list of branching functions and returns a
+new function. When invoked, this new function is applied to some arguments, each
+branching function is applied to those same arguments. The results of each
+branching function are passed as arguments to the converging function to produce
+the return value.
+
+    my $average = converge(divide(), [sum(), Yoda::length()]);
+    $average->([1,2,3,4,5,6,7]); # 4
+
+    my $strange_concat = converge(concat(), [to_upper(), to_lower()]);
+    $strange_concat->("Yodel"); # YODELyodel
+
+## divide
+
+    Num -> Num -> Num
+
+Divides two numbers. Equivalent to a / b.
+
+    divide(71, 100); # 0.71
+
+    my $reciprocal = divide(1);
+    $reciprocal->(4); # 0.25
+
 ## equals
 
     a -> b -> Bool
@@ -256,6 +283,15 @@ juxt applies a list of functions to a list of values.
     my $get_range = juxt([min(), max()]);
     $get_range->(3, 4, 9, -3); # [-3, 9]
 
+## length
+
+    [a] -> Num
+
+Returns the number of elements in the array.
+
+    length([]); # 0
+    length([1, 2, 3]); # 3
+
 ## map
 
     Functor f => (a -> b) -> f a -> f b
@@ -325,6 +361,14 @@ Multiples two numbers.
 
     [Num] -> Num
 
+## sum
+
+    [Num] -> Num
+
+Adds together all the elements of a list.
+
+    sum([2,4,6,8,100,1]); # 121
+
 ## prop
 
     s -> {s: a} -> a | Undefined
@@ -360,6 +404,14 @@ The iterator function receives two values: (acc, value).
 ## T
 
     * -> Bool
+
+## to\_lower
+
+    Str -> Str
+
+Returns the lower case version of a string.
+
+    to_lower('ABC'); # abc
 
 ## to\_upper
 

@@ -12,9 +12,9 @@ use Try::Tiny;
 our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
-    add always append compose concat cond contains equals filter group_by head
-    identity if_else intersection juxt max memoize min multiply product range
-    reduce subtract T to_upper unfold zip_with
+    add always append compose concat cond contains converge divide equals filter
+    group_by head identity if_else intersection juxt max memoize min multiply
+    product range reduce subtract sum T to_lower to_upper unfold zip_with
 );
 
 =encoding utf-8
@@ -228,6 +228,50 @@ sub contains {
         return '';
     }, @_);
 }
+
+=head2 converge
+
+    (x1 → x2 → … → z) → [(a → b → … → x1), (a → b → … → x2), …] → (a → b → … → z)
+
+Accepts a converging function and a list of branching functions and returns a
+new function. When invoked, this new function is applied to some arguments, each
+branching function is applied to those same arguments. The results of each
+branching function are passed as arguments to the converging function to produce
+the return value.
+
+    my $average = converge(divide(), [sum(), Yoda::length()]);
+    $average->([1,2,3,4,5,6,7]); # 4
+
+    my $strange_concat = converge(concat(), [to_upper(), to_lower()]);
+    $strange_concat->("Yodel"); # YODELyodel
+
+=cut
+
+sub converge {
+    _curry2(sub {
+        my ($converging_function, $branching_functions) = @_;
+
+        return sub {
+            my @args = map { $_->(@_) } @$branching_functions;
+            return $converging_function->(@args);
+        };
+    }, @_);
+}
+
+=head2 divide
+
+    Num -> Num -> Num
+
+Divides two numbers. Equivalent to a / b.
+
+    divide(71, 100); # 0.71
+
+    my $reciprocal = divide(1);
+    $reciprocal->(4); # 0.25
+
+=cut
+
+sub divide { _curry2( sub { $_[0] / $_[1] }, @_ ) }
 
 =head2 equals
 
@@ -450,6 +494,19 @@ sub juxt {
     }, @_);
 }
 
+=head2 length
+
+    [a] -> Num
+
+Returns the number of elements in the array.
+
+    length([]); # 0
+    length([1, 2, 3]); # 3
+
+=cut
+
+sub length { _curry1( sub { scalar @{$_[0]} }, @_) }
+
 =head2 map
 
     Functor f => (a -> b) -> f a -> f b
@@ -586,6 +643,18 @@ sub product {
     }, @_);
 }
 
+=head2 sum
+
+    [Num] -> Num
+
+Adds together all the elements of a list.
+
+    sum([2,4,6,8,100,1]); # 121
+
+=cut
+
+sub sum { _curry1(sub { List::Util::reduce { $a + $b } 0, @{$_[0]} }, @_) }
+
 =head2 prop
 
     s -> {s: a} -> a | Undefined
@@ -684,6 +753,18 @@ sub subtract { _curry2(sub { shift() - shift() }, @_) }
 =cut
 
 sub T { sub { 1 } }
+
+=head2 to_lower
+
+    Str -> Str
+
+Returns the lower case version of a string.
+
+    to_lower('ABC'); # abc
+
+=cut
+
+sub to_lower { _curry1( sub { lc($_[0]) }, @_ ) }
 
 =head2 to_upper
 
