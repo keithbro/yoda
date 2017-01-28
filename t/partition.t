@@ -1,23 +1,17 @@
 use Test::Most;
 
-use lib 't/lib';
-
-use Data::Dumper;
-
-use Yoda;
-use Yoda::Test;
-
-my $tasks = Yoda::Test::tasks;
-
-my $where_complete = Yoda::where_eq( { complete => 1 } );
+use Yoda qw(contains partition);
 
 eq_or_diff(
-    Yoda::partition($where_complete, $tasks),
-    [
-        [ $tasks->[0], $tasks->[2] ],
-        [ $tasks->[1], $tasks->[3] ],
-    ],
-    'partition',
+    partition(contains('s'), ['sss', 'ttt', 'foo', 'bars']),
+    [ [ 'sss', 'bars' ],  [ 'ttt', 'foo' ] ],
+    'partition over arrayref',
+);
+
+eq_or_diff(
+    partition(contains('s'), { a => 'sss', b => 'ttt', foo => 'bars' }),
+    [ { a => 'sss', foo => 'bars' }, { b => 'ttt' } ],
+    'partition over hashref',
 );
 
 done_testing;

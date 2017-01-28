@@ -14,8 +14,8 @@ our $VERSION = "0.01";
 our @EXPORT_OK = qw(
     add always append compose concat cond contains converge divide equals F
     filter group_by head identity if_else intersection juxt max memoize min
-    multiply product prop range reduce subtract sum T to_lower to_upper
-    try_catch unfold zip_with
+    multiply partition path product prop range reduce reject subtract sum T
+    to_lower to_upper try_catch unfold zip_with
 );
 
 =encoding utf-8
@@ -214,15 +214,20 @@ element of the given list; or the empty string otherwise.
     contains(4, [1, 2, 3]); # ''
     contains({ name: 'Fred' }, [{ name: 'Fred' }]); # 1
     contains([42], [[42]]); # 1
+    contains('s', 'bars'); # 1
 
 =cut
 
 sub contains {
     _curry2(sub {
-        my ($value, $list) = @_;
+        my ($value, $list_or_string) = @_;
+
+        my @list = ref($list_or_string)
+            ? @$list_or_string
+            : split(//, $list_or_string);
         my $value_as_string = _to_string($value);
 
-        for my $element (@$list) {
+        for my $element (@list) {
             return 1 if _to_string($element) eq $value_as_string;
         }
 
@@ -632,12 +637,45 @@ sub multiply { _curry2( sub { shift() * shift() }, @_ ) }
 
     Filterable f => (a → Bool) → f a → [f a, f a]
 
+Takes a predicate and a list or other "filterable" object and returns the pair
+of filterable objects of the same type of elements which do and do not satisfy,
+the predicate, respectively.
+
+    partition(contains('s'), ['sss', 'ttt', 'foo', 'bars']);
+    # [ [ 'sss', 'bars' ],  [ 'ttt', 'foo' ] ]
+
+    partition(contains('s'), { a => 'sss', b => 'ttt', foo => 'bars' });
+    # [ { a => 'sss', foo => 'bars' }, { b => 'ttt' } ]
+
 =cut
 
 sub partition {
     _curry2(sub {
         my ($predicate, $filterable) = @_;
         return juxt( [ filter(), reject() ], $predicate, $filterable );
+    }, @_);
+}
+
+=head2 path
+
+    [Idx] → {a} → a | Undefined
+    Idx = String | Int
+
+Retrieve the value at a given path.
+
+    path(['a', 'b'], {a => {b => 2}}); # 2
+    path(['a', 'b'], {c => {b => 2}}); # undef
+
+=cut
+
+sub path {
+    _curry2(sub {
+        my ($path, $hashref) = @_;
+
+        my $value = $hashref;
+        $value = $value->{$_} for @$path;
+
+        return $value;
     }, @_);
 }
 
@@ -750,12 +788,30 @@ sub reduce_by {
 
     Filterable f => (a → Bool) → f a → f a
 
+The complement of filter.
+
+    my $is_odd = sub { $_[0] % 2 == 1 };
+
+    reject($is_odd, [1, 2, 3, 4]); # [2, 4]
+
+    reject($is_odd, {a => 1, b => 2, c => 3, d => 4});
+    # {b => 2, d => 4}
+
 =cut
 
 sub reject {
     _curry2(sub {
         my ($predicate, $filterable) = @_;
-        return [ grep { !$predicate->($_) } @$filterable ];
+
+        if (ref($filterable) eq 'ARRAY') {
+            return [ grep { ! $predicate->($_) } @$filterable ];
+        }
+
+        return {
+            map { $_ => $filterable->{$_} }
+            grep { ! $predicate->($filterable->{$_}) }
+            keys %$filterable
+        };
     }, @_);
 }
 
