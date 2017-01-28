@@ -82,6 +82,19 @@ Example:
 
     chain(append(), head())->([1, 2, 3]); # [1, 2, 3, 1]
 
+## complement
+
+    (*… → *) → (*… → Boolean)
+
+Takes a function f and returns a function g such that if called with the same
+arguments when f returns a "truthy" value, g returns false and when f returns a
+"falsy" value g returns true.
+
+    my $is_undefined = complement(is_defined());
+
+    $is_undefined->(undef); # 1
+    $is_undefined->(7); # ''
+
 ## compose
 
     ((y → z), (x → y), …, (o → p), ((a, b, …, n) → o)) → ((a, b, …, n) → z)
@@ -291,6 +304,15 @@ common to both lists.
 
     intersection([1,2,3,4], [7,6,5,4,3]); # [4, 3]
 
+## is\_defined
+
+    a -> Bool
+
+Checks if the input value is defined.
+
+    is_defined(undef); # ''
+    is_defined(3);     # 1
+
 ## join
 
     Str → [a] → Str
@@ -404,6 +426,32 @@ Retrieve the value at a given path.
 
     path(['a', 'b'], {a => {b => 2}}); # 2
     path(['a', 'b'], {c => {b => 2}}); # undef
+
+## pick
+
+    [Str] -> {Str: *} -> {Str: *}
+
+Returns a partial copy of an object containing only the keys specified. If the
+key does not exist, the property is ignored.
+
+    my $hash_ref = { a => 1, b => 2, c => 3, d => 4, e => 0 };
+
+    pick(['a', 'd'], $hash_ref); # { a => 1, d => 4 }
+
+    pick(['a', 'e', 'f'], $hash_ref); # { a => 1, e => 0 }
+
+## pick\_all
+
+    [Str] -> {Str: *} -> {Str: *}
+
+Similar to pick except that this one includes a key: undef pair for keys
+that don't exist.
+
+    my $hash_ref = { a => 1, b => 2, c => 3, d => 4, e => 0 };
+
+    pick_all(['a', 'd'], $hash_ref); # { a => 1, d => 4 }
+
+    pick_all(['a', 'e', 'f'], $hash_ref); # { a => 1, e => 0, f => undef }
 
 ## product
 
