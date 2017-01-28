@@ -807,18 +807,6 @@ sub product {
     }, @_);
 }
 
-=head2 sum
-
-    [Num] → Num
-
-Adds together all the elements of a list.
-
-    sum([2,4,6,8,100,1]); # 121
-
-=cut
-
-sub sum { _curry1(sub { List::Util::reduce { $a + $b } 0, @{$_[0]} }, @_) }
-
 =head2 prop
 
     s → {s: a} → a | undef
@@ -943,6 +931,18 @@ A function that always returns 1. Any passed in parameters are ignored.
     T(); # 1
 
 =cut
+
+=head2 sum
+
+    [Num] → Num
+
+Adds together all the elements of a list.
+
+    sum([2,4,6,8,100,1]); # 121
+
+=cut
+
+sub sum { _curry1(sub { List::Util::reduce { $a + $b } 0, @{$_[0]} }, @_) }
 
 sub T { sub { 1 } }
 

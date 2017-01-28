@@ -457,14 +457,6 @@ that don't exist.
 
     [Num] → Num
 
-## sum
-
-    [Num] → Num
-
-Adds together all the elements of a list.
-
-    sum([2,4,6,8,100,1]); # 121
-
 ## prop
 
     s → {s: a} → a | undef
@@ -519,6 +511,14 @@ The complement of filter.
 A function that always returns 1. Any passed in parameters are ignored.
 
     T(); # 1
+
+## sum
+
+    [Num] → Num
+
+Adds together all the elements of a list.
+
+    sum([2,4,6,8,100,1]); # 121
 
 ## take
 
