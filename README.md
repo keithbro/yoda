@@ -38,7 +38,7 @@ Or functionally,
 
 ## add
 
-    Num -> Num -> Num
+    Num → Num → Num
 
 Adds two numbers.
 
@@ -46,7 +46,7 @@ Adds two numbers.
 
 ## always
 
-    a -> (* -> a)
+    a → (* → a)
 
 Returns a function that always returns the given value.
 
@@ -55,7 +55,7 @@ Returns a function that always returns the given value.
 
 ## append
 
-    a -> [a] -> [a]
+    a → [a] → [a]
 
 Returns a new list containing the contents of the given list, followed by the
 given element.
@@ -66,7 +66,7 @@ given element.
 
 ## compose
 
-    ((y -> z), (x -> y), ..., (o -> p), ((a, b, ..., n) -> o)) -> ((a, b, ..., n) -> z)
+    ((y → z), (x → y), …, (o → p), ((a, b, …, n) → o)) → ((a, b, …, n) → z)
 
 Performs right-to-left function composition. The rightmost function may have any
 arity; the remaining functions must be unary.
@@ -87,8 +87,8 @@ Note: The result of compose is not automatically curried.
 
 ## concat
 
-    [a] -> [a] -> [a]
-    Str -> Str -> Str
+    [a] → [a] → [a]
+    Str → Str → Str
 
 Returns the result of concatenating the given lists or strings.
 
@@ -98,9 +98,9 @@ Returns the result of concatenating the given lists or strings.
 
 ## cond
 
-    [[(*... -> Bool),(*... -> *)]] -> (*... -> *)
+    [[(*… → Bool),(*… → *)]] → (*… → *)
 
-Returns a function, fn, which encapsulates if/else, if/else, ... logic. \`cond\`
+Returns a function, fn, which encapsulates if/else, if/else, … logic. \`cond\`
 takes a list of \[predicate, transformer\] pairs. All of the arguments to fn are
 applied to each of the predicates in turn until one returns a "truthy" value, at
 which point fn returns the result of applying its arguments to the corresponding
@@ -117,7 +117,7 @@ transformer. If none of the predicates matches, fn returns \`undef\`.
 
 ## contains
 
-    a -> [a] -> Bool
+    a → [a] → Bool
 
 Returns 1 if the specified value is equal, in \`equals\` terms, to at least one
 element of the given list; or the empty string otherwise.
@@ -145,7 +145,7 @@ the return value.
 
 ## divide
 
-    Num -> Num -> Num
+    Num → Num → Num
 
 Divides two numbers. Equivalent to a / b.
 
@@ -156,7 +156,7 @@ Divides two numbers. Equivalent to a / b.
 
 ## equals
 
-    a -> b -> Bool
+    a → b → Bool
 
 Returns 1 if its arguments are equivalent, the empty string otherwise. Currently
 does not handles cyclical data structures, unlike Ramda.
@@ -165,9 +165,18 @@ does not handles cyclical data structures, unlike Ramda.
     equals(1, '1'); # ''
     equals([1, 2, 3], [1, 2, 3]); # 1
 
+## F
+
+    * → Bool
+
+A function that always returns the empty string. Any passed in parameters are
+ignored.
+
+    F(); # ''
+
 ## filter
 
-    Filterable f => (a -> Bool) -> f a -> f a
+    Filterable f => (a → Bool) → f a → f a
 
 Takes a predicate and a "filterable", and returns a new filterable of the same
 type containing the members of the given filterable which satisfy the given
@@ -181,7 +190,7 @@ predicate.
 
 ## group\_by
 
-    (a -> Str) -> [a] -> {Str: [a]}
+    (a → Str) → [a] → {Str: [a]}
 
 Splits a list into sub-lists stored in an object, based on the result of calling
 a String-returning function on each element, and grouping the results according
@@ -201,7 +210,7 @@ to values returned.
     my $students = [
         {name => 'Abby', score => 84},
         {name => 'Eddy', score => 58},
-        # ...
+        # …
         {name => 'Jack', score => 69},
     ];
 
@@ -209,14 +218,14 @@ to values returned.
     # {
     #     'B' => [{name => 'Abby', score => 84}],
     #     'D' => [{name => 'Jack', score => 69}],
-    #     ...
+    #     …
     #     'F' => [{name => 'Eddy', score => 58}],
     # },
 
 ## head
 
-    [a] -> a | undef
-    Str -> Str
+    [a] → a | undef
+    Str → Str
 
 Returns the first element of the given list or string.
 
@@ -228,7 +237,7 @@ Returns the first element of the given list or string.
 
 ## identity
 
-    a -> a
+    a → a
 
 A function that does nothing but return the parameter supplied to it. Good as a
 default or placeholder function.
@@ -240,7 +249,7 @@ default or placeholder function.
 
 ## if\_else
 
-    (*... -> Bool) -> (*... -> *) -> (*... -> *)
+    (*… → Bool) → (*… → *) → (*… → *)
 
 Creates a function that will process either the on\_true or the on\_false function
 depending upon the result of the condition predicate.
@@ -256,7 +265,7 @@ depending upon the result of the condition predicate.
 
 ## intersection
 
-    [*] -> [*] -> [*]
+    [*] → [*] → [*]
 
 Combines two lists into a set (i.e. no duplicates) composed of those elements
 common to both lists.
@@ -265,7 +274,7 @@ common to both lists.
 
 ## join
 
-    Str -> [a] -> Str
+    Str → [a] → Str
 
 Returns a string made by inserting the separator between each element and
 concatenating all the elements into a single string.
@@ -276,7 +285,7 @@ concatenating all the elements into a single string.
 
 ## juxt
 
-    [(a, b, ..., m) -> n] -> ((a, b, ..., m) -> [n])
+    [(a, b, …, m) → n] → ((a, b, …, m) → [n])
 
 juxt applies a list of functions to a list of values.
 
@@ -285,7 +294,7 @@ juxt applies a list of functions to a list of values.
 
 ## length
 
-    [a] -> Num
+    [a] → Num
 
 Returns the number of elements in the array.
 
@@ -294,7 +303,7 @@ Returns the number of elements in the array.
 
 ## map
 
-    Functor f => (a -> b) -> f a -> f b
+    Functor f => (a → b) → f a → f b
 
 Takes a function and a functor, applies the function to each of the functor's
 values, and returns a functor of the same shape.
@@ -310,7 +319,7 @@ function may be applied to \[1, 2, 3\] or {x => 1, y => 2, z => 3}.
 
 ## max
 
-    [Num] -> Num
+    [Num] → Num
 
 Returns the larger of its two arguments.
 
@@ -318,7 +327,7 @@ Returns the larger of its two arguments.
 
 ## memoize
 
-    (*... -> a) -> (*... -> a)
+    (*… → a) → (*… → a)
 
 Creates a new function that, when invoked, caches the result of calling fn for a
 given argument set and returns the result. Subsequent calls to the memoized fn
@@ -339,7 +348,7 @@ the cached result for that set of arguments will be returned.
 
 ## min
 
-    [Num] -> Num
+    [Num] → Num
 
 Returns the smaller of its two arguments.
 
@@ -347,7 +356,7 @@ Returns the smaller of its two arguments.
 
 ## multiply
 
-    Num -> Num -> Num
+    Num → Num → Num
 
 Multiples two numbers.
 
@@ -355,15 +364,15 @@ Multiples two numbers.
 
 ## partition
 
-    Filterable f => (a -> Bool) -> f a -> [f a, f a]
+    Filterable f => (a → Bool) → f a → [f a, f a]
 
 ## product
 
-    [Num] -> Num
+    [Num] → Num
 
 ## sum
 
-    [Num] -> Num
+    [Num] → Num
 
 Adds together all the elements of a list.
 
@@ -371,15 +380,21 @@ Adds together all the elements of a list.
 
 ## prop
 
-    s -> {s: a} -> a | Undefined
+    s → {s: a} → a | undef
+
+Returns a function that when supplied a HashRef returns the indicated value
+of that HashRef, if it exists.
+
+    prop('x', {x => 100}); # 100
+    prop('x', {}); # undef
 
 ## range
 
-    Num -> Num -> [Num]
+    Num → Num → [Num]
 
 ## reduce
 
-    (a -> b -> a) -> a -> [b] -> a
+    (a → b → a) → a → [b] → a
 
 Returns a single item by iterating through the list, successively calling the
 iterator function and passing it an accumulator value and the current value from
@@ -391,23 +406,27 @@ The iterator function receives two values: (acc, value).
 
 ## reduce\_by
 
-    ((a, b) -> a) -> a -> (b -> Str) -> [b] -> {Str: a}
+    ((a, b) → a) → a → (b → Str) → [b] → {Str: a}
 
 ## reject
 
-    Filterable f => (a -> Bool) -> f a -> f a
+    Filterable f => (a → Bool) → f a → f a
 
 ## subtract
 
-    Num -> Num -> Num
+    Num → Num → Num
 
 ## T
 
-    * -> Bool
+    * → Bool
+
+A function that always returns 1. Any passed in parameters are ignored.
+
+    T(); # 1
 
 ## to\_lower
 
-    Str -> Str
+    Str → Str
 
 Returns the lower case version of a string.
 
@@ -415,7 +434,7 @@ Returns the lower case version of a string.
 
 ## to\_upper
 
-    Str -> Str
+    Str → Str
 
 Returns the upper case version of a string.
 
@@ -423,15 +442,24 @@ Returns the upper case version of a string.
 
 ## transpose
 
-    [[a]] -> [[a]]
+    [[a]] → [[a]]
 
 ## try\_catch
 
-    (...x -> a) -> ((e, ...x) -> a) -> (...x -> a)
+    (…x → a) → ((e, …x) → a) → (…x → a)
+
+try\_catch takes two functions, a tryer and a catcher. The returned function
+evaluates the tryer; if it does not throw, it simply returns the result. If the
+tryer does throw, the returned function evaluates the catcher function and
+returns its result. Note that for effective composition with this function, both
+the tryer and catcher functions must return the same type of results.
+
+    try_catch(prop('x'), F())({x => 1}); # 1
+    try_catch(prop('x'), F())(undef); # ''
 
 ## unfold
 
-    (a -> [b]) -> * -> [b]
+    (a → [b]) → * → [b]
 
 Builds a list from a seed value. Accepts an iterator function, which returns
 either a falsey value to stop iteration or an array of length 2 containing the
@@ -446,25 +474,25 @@ The iterator function receives one argument: (seed).
 
 ## uniq
 
-    [a] -> [a]
+    [a] → [a]
 
 ## union
 
-    [*] -> [*] -> [*]
+    [*] → [*] → [*]
 
 ## where\_eq
 
-    {Str: *} -> {Str: *} -> Bool
+    {Str: *} → {Str: *} → Bool
 
 ## zip\_with
 
-    (a -> b -> c) -> [a] -> [b] -> [c]
+    (a → b → c) → [a] → [b] → [c]
 
 Creates a new list out of the two supplied by applying the function to each
 equally-positioned pair in the lists. The returned list is truncated to the
 length of the shorter of the two input lists.
 
-    my $f = sub { my ($x, $y) = @_; ... };
+    my $f = sub { my ($x, $y) = @_; … };
 
     zipWith($f, [1, 2, 3], ['a', 'b', 'c']);
     # [f->(1, 'a'), f->(2, 'b'), f->(3, 'c')]
