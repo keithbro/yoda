@@ -12,9 +12,10 @@ use Try::Tiny;
 our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
-    add always append compose concat cond contains converge divide equals filter
-    group_by head identity if_else intersection juxt max memoize min multiply
-    product range reduce subtract sum T to_lower to_upper unfold zip_with
+    add always append compose concat cond contains converge divide equals F
+    filter group_by head identity if_else intersection juxt max memoize min
+    multiply product prop range reduce subtract sum T to_lower to_upper
+    try_catch unfold zip_with
 );
 
 =encoding utf-8
@@ -59,7 +60,7 @@ Or functionally,
 
 =head2 add
 
-    Num -> Num -> Num
+    Num → Num → Num
 
 Adds two numbers.
 
@@ -71,7 +72,7 @@ sub add { _curry2( sub { $_[0] + $_[1] }, @_ ) }
 
 =head2 always
 
-    a -> (* -> a)
+    a → (* → a)
 
 Returns a function that always returns the given value.
 
@@ -89,7 +90,7 @@ sub always {
 
 =head2 append
 
-    a -> [a] -> [a]
+    a → [a] → [a]
 
 Returns a new list containing the contents of the given list, followed by the
 given element.
@@ -109,7 +110,7 @@ sub append {
 
 =head2 compose
 
-    ((y -> z), (x -> y), ..., (o -> p), ((a, b, ..., n) -> o)) -> ((a, b, ..., n) -> z)
+    ((y → z), (x → y), …, (o → p), ((a, b, …, n) → o)) → ((a, b, …, n) → z)
 
 Performs right-to-left function composition. The rightmost function may have any
 arity; the remaining functions must be unary.
@@ -142,8 +143,8 @@ sub compose {
 
 =head2 concat
 
-    [a] -> [a] -> [a]
-    Str -> Str -> Str
+    [a] → [a] → [a]
+    Str → Str → Str
 
 Returns the result of concatenating the given lists or strings.
 
@@ -167,9 +168,9 @@ sub concat {
 
 =head2 cond
 
-    [[(*... -> Bool),(*... -> *)]] -> (*... -> *)
+    [[(*… → Bool),(*… → *)]] → (*… → *)
 
-Returns a function, fn, which encapsulates if/else, if/else, ... logic. `cond`
+Returns a function, fn, which encapsulates if/else, if/else, … logic. `cond`
 takes a list of [predicate, transformer] pairs. All of the arguments to fn are
 applied to each of the predicates in turn until one returns a "truthy" value, at
 which point fn returns the result of applying its arguments to the corresponding
@@ -204,7 +205,7 @@ sub cond {
 
 =head2 contains
 
-    a -> [a] -> Bool
+    a → [a] → Bool
 
 Returns 1 if the specified value is equal, in `equals` terms, to at least one
 element of the given list; or the empty string otherwise.
@@ -260,7 +261,7 @@ sub converge {
 
 =head2 divide
 
-    Num -> Num -> Num
+    Num → Num → Num
 
 Divides two numbers. Equivalent to a / b.
 
@@ -275,7 +276,7 @@ sub divide { _curry2( sub { $_[0] / $_[1] }, @_ ) }
 
 =head2 equals
 
-    a -> b -> Bool
+    a → b → Bool
 
 Returns 1 if its arguments are equivalent, the empty string otherwise. Currently
 does not handles cyclical data structures, unlike Ramda.
@@ -293,9 +294,23 @@ sub equals {
     }, @_);
 }
 
+=head2 F
+
+    * → Bool
+
+A function that always returns the empty string. Any passed in parameters are
+ignored.
+
+    F(); # ''
+
+=cut
+
+sub F { sub { '' } }
+
+
 =head2 filter
 
-    Filterable f => (a -> Bool) -> f a -> f a
+    Filterable f => (a → Bool) → f a → f a
 
 Takes a predicate and a "filterable", and returns a new filterable of the same
 type containing the members of the given filterable which satisfy the given
@@ -327,7 +342,7 @@ sub filter {
 
 =head2 group_by
 
-    (a -> Str) -> [a] -> {Str: [a]}
+    (a → Str) → [a] → {Str: [a]}
 
 Splits a list into sub-lists stored in an object, based on the result of calling
 a String-returning function on each element, and grouping the results according
@@ -347,7 +362,7 @@ to values returned.
     my $students = [
         {name => 'Abby', score => 84},
         {name => 'Eddy', score => 58},
-        # ...
+        # …
         {name => 'Jack', score => 69},
     ];
 
@@ -355,7 +370,7 @@ to values returned.
     # {
     #     'B' => [{name => 'Abby', score => 84}],
     #     'D' => [{name => 'Jack', score => 69}],
-    #     ...
+    #     …
     #     'F' => [{name => 'Eddy', score => 58}],
     # },
 
@@ -365,8 +380,8 @@ sub group_by { _curry2(sub { reduce_by(append(), [], @_) }, @_) }
 
 =head2 head
 
-    [a] -> a | undef
-    Str -> Str
+    [a] → a | undef
+    Str → Str
 
 Returns the first element of the given list or string.
 
@@ -389,7 +404,7 @@ sub head {
 
 =head2 identity
 
-    a -> a
+    a → a
 
 A function that does nothing but return the parameter supplied to it. Good as a
 default or placeholder function.
@@ -405,7 +420,7 @@ sub identity { _curry1( sub { $_[0] }, @_ ) }
 
 =head2 if_else
 
-    (*... -> Bool) -> (*... -> *) -> (*... -> *)
+    (*… → Bool) → (*… → *) → (*… → *)
 
 Creates a function that will process either the on_true or the on_false function
 depending upon the result of the condition predicate.
@@ -431,7 +446,7 @@ sub if_else {
 
 =head2 intersection
 
-    [*] -> [*] -> [*]
+    [*] → [*] → [*]
 
 Combines two lists into a set (i.e. no duplicates) composed of those elements
 common to both lists.
@@ -463,7 +478,7 @@ sub intersection {
 
 =head2 join
 
-    Str -> [a] -> Str
+    Str → [a] → Str
 
 Returns a string made by inserting the separator between each element and
 concatenating all the elements into a single string.
@@ -478,7 +493,7 @@ sub join { _curry2(sub { join( $_[0], @{$_[1]} ) }, @_) }
 
 =head2 juxt
 
-    [(a, b, ..., m) -> n] -> ((a, b, ..., m) -> [n])
+    [(a, b, …, m) → n] → ((a, b, …, m) → [n])
 
 juxt applies a list of functions to a list of values.
 
@@ -496,7 +511,7 @@ sub juxt {
 
 =head2 length
 
-    [a] -> Num
+    [a] → Num
 
 Returns the number of elements in the array.
 
@@ -509,7 +524,7 @@ sub length { _curry1( sub { scalar @{$_[0]} }, @_) }
 
 =head2 map
 
-    Functor f => (a -> b) -> f a -> f b
+    Functor f => (a → b) → f a → f b
 
 Takes a function and a functor, applies the function to each of the functor's
 values, and returns a functor of the same shape.
@@ -542,7 +557,7 @@ sub map {
 
 =head2 max
 
-    [Num] -> Num
+    [Num] → Num
 
 Returns the larger of its two arguments.
 
@@ -554,7 +569,7 @@ sub max { _curry2(sub { List::Util::max(@_) }, @_) }
 
 =head2 memoize
 
-    (*... -> a) -> (*... -> a)
+    (*… → a) → (*… → a)
 
 Creates a new function that, when invoked, caches the result of calling fn for a
 given argument set and returns the result. Subsequent calls to the memoized fn
@@ -591,7 +606,7 @@ sub memoize {
 
 =head2 min
 
-    [Num] -> Num
+    [Num] → Num
 
 Returns the smaller of its two arguments.
 
@@ -603,7 +618,7 @@ sub min { _curry2( sub { List::Util::min(@_) }, @_) }
 
 =head2 multiply
 
-    Num -> Num -> Num
+    Num → Num → Num
 
 Multiples two numbers.
 
@@ -615,7 +630,7 @@ sub multiply { _curry2( sub { shift() * shift() }, @_ ) }
 
 =head2 partition
 
-    Filterable f => (a -> Bool) -> f a -> [f a, f a]
+    Filterable f => (a → Bool) → f a → [f a, f a]
 
 =cut
 
@@ -628,7 +643,7 @@ sub partition {
 
 =head2 product
 
-    [Num] -> Num
+    [Num] → Num
 
 =cut
 
@@ -645,7 +660,7 @@ sub product {
 
 =head2 sum
 
-    [Num] -> Num
+    [Num] → Num
 
 Adds together all the elements of a list.
 
@@ -657,20 +672,26 @@ sub sum { _curry1(sub { List::Util::reduce { $a + $b } 0, @{$_[0]} }, @_) }
 
 =head2 prop
 
-    s -> {s: a} -> a | Undefined
+    s → {s: a} → a | undef
+
+Returns a function that when supplied a HashRef returns the indicated value
+of that HashRef, if it exists.
+
+    prop('x', {x => 100}); # 100
+    prop('x', {}); # undef
 
 =cut
 
 sub prop {
     _curry2(sub {
         my ($key, $hashref) = @_;
-        return $hashref->{$key};
+        return { %$hashref }->{$key};
     }, @_);
 }
 
 =head2 range
 
-    Num -> Num -> [Num]
+    Num → Num → [Num]
 
 =cut
 
@@ -683,7 +704,7 @@ sub range {
 
 =head2 reduce
 
-    (a -> b -> a) -> a -> [b] -> a
+    (a → b → a) → a → [b] → a
 
 Returns a single item by iterating through the list, successively calling the
 iterator function and passing it an accumulator value and the current value from
@@ -704,7 +725,7 @@ sub reduce {
 
 =head2 reduce_by
 
-    ((a, b) -> a) -> a -> (b -> Str) -> [b] -> {Str: a}
+    ((a, b) → a) → a → (b → Str) → [b] → {Str: a}
 
 =cut
 
@@ -727,7 +748,7 @@ sub reduce_by {
 
 =head2 reject
 
-    Filterable f => (a -> Bool) -> f a -> f a
+    Filterable f => (a → Bool) → f a → f a
 
 =cut
 
@@ -740,7 +761,7 @@ sub reject {
 
 =head2 subtract
 
-    Num -> Num -> Num
+    Num → Num → Num
 
 =cut
 
@@ -748,7 +769,11 @@ sub subtract { _curry2(sub { shift() - shift() }, @_) }
 
 =head2 T
 
-    * -> Bool
+    * → Bool
+
+A function that always returns 1. Any passed in parameters are ignored.
+
+    T(); # 1
 
 =cut
 
@@ -756,7 +781,7 @@ sub T { sub { 1 } }
 
 =head2 to_lower
 
-    Str -> Str
+    Str → Str
 
 Returns the lower case version of a string.
 
@@ -768,7 +793,7 @@ sub to_lower { _curry1( sub { lc($_[0]) }, @_ ) }
 
 =head2 to_upper
 
-    Str -> Str
+    Str → Str
 
 Returns the upper case version of a string.
 
@@ -780,7 +805,7 @@ sub to_upper { _curry1( sub { uc( $_[0] ) }, @_ ) }
 
 =head2 transpose
 
-    [[a]] -> [[a]]
+    [[a]] → [[a]]
 
 =cut
 
@@ -804,7 +829,16 @@ sub transpose {
 
 =head2 try_catch
 
-    (...x -> a) -> ((e, ...x) -> a) -> (...x -> a)
+    (…x → a) → ((e, …x) → a) → (…x → a)
+
+try_catch takes two functions, a tryer and a catcher. The returned function
+evaluates the tryer; if it does not throw, it simply returns the result. If the
+tryer does throw, the returned function evaluates the catcher function and
+returns its result. Note that for effective composition with this function, both
+the tryer and catcher functions must return the same type of results.
+
+    try_catch(prop('x'), F())({x => 1}); # 1
+    try_catch(prop('x'), F())(undef); # ''
 
 =cut
 
@@ -825,7 +859,7 @@ sub try_catch {
 
 =head2 unfold
 
-    (a -> [b]) -> * -> [b]
+    (a → [b]) → * → [b]
 
 Builds a list from a seed value. Accepts an iterator function, which returns
 either a falsey value to stop iteration or an array of length 2 containing the
@@ -859,7 +893,7 @@ sub unfold {
 
 =head2 uniq
 
-    [a] -> [a]
+    [a] → [a]
 
 =cut
 
@@ -873,7 +907,7 @@ sub uniq {
 
 =head2 union
 
-    [*] -> [*] -> [*]
+    [*] → [*] → [*]
 
 =cut
 
@@ -881,7 +915,7 @@ sub union { _curry2(sub { uniq( [ map { @$_ } @_ ] ) }, @_) }
 
 =head2 where_eq
 
-    {Str: *} -> {Str: *} -> Bool
+    {Str: *} → {Str: *} → Bool
 
 =cut
 
@@ -895,13 +929,13 @@ sub where_eq {
 
 =head2 zip_with
 
-    (a -> b -> c) -> [a] -> [b] -> [c]
+    (a → b → c) → [a] → [b] → [c]
 
 Creates a new list out of the two supplied by applying the function to each
 equally-positioned pair in the lists. The returned list is truncated to the
 length of the shorter of the two input lists.
 
-    my $f = sub { my ($x, $y) = @_; ... };
+    my $f = sub { my ($x, $y) = @_; … };
 
     zipWith($f, [1, 2, 3], ['a', 'b', 'c']);
     # [f->(1, 'a'), f->(2, 'b'), f->(3, 'c')]
@@ -939,7 +973,7 @@ sub _to_string {
 
 # _uniq
 #
-#    [a] -> {Str: a}
+#    [a] → {Str: a}
 #
 # Given a list, returns a HashRef where the keys are a unique Str representation
 # of each element and the values are the (unique) elements.
