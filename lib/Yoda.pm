@@ -13,9 +13,9 @@ our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
     add always append compose concat cond contains converge divide equals F
-    filter group_by head identity if_else intersection juxt max memoize min
+    filter flip group_by head identity if_else intersection juxt max memoize min
     multiply partition path product prop range reduce reject subtract sum T
-    to_lower to_upper try_catch unfold zip_with
+    take to_lower to_upper try_catch unfold zip_with
 );
 
 =encoding utf-8
@@ -101,12 +101,7 @@ given element.
 
 =cut
 
-sub append {
-    _curry2(sub {
-        my ($element, $list) = @_;
-        return [ @$list, $element ];
-    }, @_);
-}
+sub append { _curry2( sub { [ @{$_[1]}, $_[0] ] }, @_ ) }
 
 =head2 compose
 
@@ -312,7 +307,6 @@ ignored.
 
 sub F { sub { '' } }
 
-
 =head2 filter
 
     Filterable f => (a → Bool) → f a → f a
@@ -321,11 +315,11 @@ Takes a predicate and a "filterable", and returns a new filterable of the same
 type containing the members of the given filterable which satisfy the given
 predicate.
 
-    my $isEven = sub { shift() % 2 == 0 };
+    my $is_even = sub { shift() % 2 == 0 };
 
-    filter($isEven, [1, 2, 3, 4]); # [2, 4]
+    filter($is_even, [1, 2, 3, 4]); # [2, 4]
 
-    filter($isEven, {a => 1, b => 2, c => 3, d => 4}); # {b => 2, d => 4}
+    filter($is_even, {a => 1, b => 2, c => 3, d => 4}); # {b => 2, d => 4}
 
 =cut
 
@@ -344,6 +338,7 @@ sub filter {
         };
     }, @_);
 }
+
 
 =head2 group_by
 
@@ -834,6 +829,55 @@ A function that always returns 1. Any passed in parameters are ignored.
 =cut
 
 sub T { sub { 1 } }
+
+=head2 take
+
+    Num -> [a] -> [a]
+    Num -> Str -> Str
+
+Returns the first n elements of the given list or string.
+
+    take(1, ['foo', 'bar', 'baz']); # ['foo']
+    take(2, ['foo', 'bar', 'baz']); # ['foo', 'bar']
+    take(3, ['foo', 'bar', 'baz']); # ['foo', 'bar', 'baz']
+    take(4, ['foo', 'bar', 'baz']); # ['foo', 'bar', 'baz']
+    take(3, ['foo', undef, 'baz']); # ['foo', undef, 'baz']
+    take(3, 'ramda');               # 'ram'
+
+    my $personnel = [
+        'Dave Brubeck',
+        'Paul Desmond',
+        'Eugene Wright',
+        'Joe Morello',
+        'Gerry Mulligan',
+        'Bob Bates',
+        'Joe Dodge',
+        'Ron Crotty'
+    ];
+
+    my $take_five = take(5);
+    $take_five->($personnel);
+    # ['Dave Brubeck', 'Paul Desmond', 'Eugene Wright', 'Joe Morello', 'Gerry Mulligan']
+
+=cut
+
+sub take {
+    _curry2(sub {
+        my ($n, $list_or_string) = @_;
+
+        my $is_string = !ref($list_or_string);
+
+        my @elements = $is_string
+            ? split(//, $list_or_string)
+            : @$list_or_string;
+
+        my $max = scalar @elements < $n ? scalar @elements : $n;
+
+        my @taken = map { $elements[$_] } 0 .. $max - 1;
+
+        return $is_string ? CORE::join('', @taken) : [ @taken ];
+    }, @_);
+}
 
 =head2 to_lower
 

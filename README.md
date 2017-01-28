@@ -183,11 +183,11 @@ Takes a predicate and a "filterable", and returns a new filterable of the same
 type containing the members of the given filterable which satisfy the given
 predicate.
 
-    my $isEven = sub { shift() % 2 == 0 };
+    my $is_even = sub { shift() % 2 == 0 };
 
-    filter($isEven, [1, 2, 3, 4]); # [2, 4]
+    filter($is_even, [1, 2, 3, 4]); # [2, 4]
 
-    filter($isEven, {a => 1, b => 2, c => 3, d => 4}); # {b => 2, d => 4}
+    filter($is_even, {a => 1, b => 2, c => 3, d => 4}); # {b => 2, d => 4}
 
 ## group\_by
 
@@ -453,6 +453,35 @@ The complement of filter.
 A function that always returns 1. Any passed in parameters are ignored.
 
     T(); # 1
+
+## take
+
+    Num -> [a] -> [a]
+    Num -> Str -> Str
+
+Returns the first n elements of the given list or string.
+
+    take(1, ['foo', 'bar', 'baz']); # ['foo']
+    take(2, ['foo', 'bar', 'baz']); # ['foo', 'bar']
+    take(3, ['foo', 'bar', 'baz']); # ['foo', 'bar', 'baz']
+    take(4, ['foo', 'bar', 'baz']); # ['foo', 'bar', 'baz']
+    take(3, ['foo', undef, 'baz']); # ['foo', undef, 'baz']
+    take(3, 'ramda');               # 'ram'
+
+    my $personnel = [
+        'Dave Brubeck',
+        'Paul Desmond',
+        'Eugene Wright',
+        'Joe Morello',
+        'Gerry Mulligan',
+        'Bob Bates',
+        'Joe Dodge',
+        'Ron Crotty'
+    ];
+
+    my $take_five = take(5);
+    $take_five->($personnel);
+    # ['Dave Brubeck', 'Paul Desmond', 'Eugene Wright', 'Joe Morello', 'Gerry Mulligan']
 
 ## to\_lower
 
