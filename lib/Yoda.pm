@@ -12,8 +12,8 @@ use Try::Tiny;
 our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
-    add always append compose concat cond contains converge divide equals F
-    filter flip group_by head identity if_else intersection juxt max memoize min
+    add always append chain compose concat cond contains converge divide equals F
+    filter group_by head identity if_else intersection juxt max memoize min
     multiply partition path product prop range reduce reject subtract sum T
     take to_lower to_upper try_catch unfold zip_with
 );
@@ -102,6 +102,45 @@ given element.
 =cut
 
 sub append { _curry2( sub { [ @{$_[1]}, $_[0] ] }, @_ ) }
+
+=head2 chain
+
+    Chain m => (a → m b) → m a → m b
+
+chain maps a function over a list and concatenates the results. Note that
+functions are chains and so by replacing `m` with `x → `, the signature is
+also:
+
+    (a → x → b) → (x → a) → x → b
+
+Example:
+
+    my $duplicate = sub { [ $_[0], $_[0] ] };
+
+    chain($duplicate, [1, 2, 3]); # [1, 1, 2, 2, 3, 3]
+
+    chain(append(), head())->([1, 2, 3]); # [1, 2, 3, 1]
+
+=cut
+
+sub chain {
+    my @args = @_;
+
+    if (ref($args[-1]) ne 'ARRAY') {
+        return sub { chain( @args, @_ ) };
+    }
+
+    if (scalar @args == 2) {
+        my ($f, $list) = @args;
+        return [ map { @{$f->($_)} } @$list ];
+    }
+
+    if (scalar @args == 3) {
+        my ($f, $g, $list) = @_;
+        my $el = $g->($list);
+        return $f->($el, $list);
+    }
+}
 
 =head2 compose
 

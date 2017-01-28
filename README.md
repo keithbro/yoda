@@ -64,6 +64,24 @@ given element.
     append('tests', []);                    # ['tests']
     append(['tests'], ['write', 'more']);   # ['write', 'more', ['tests']]
 
+## chain
+
+    Chain m => (a → m b) → m a → m b
+
+chain maps a function over a list and concatenates the results. Note that
+functions are chains and so by replacing \`m\` with \`x → \`, the signature is
+also:
+
+    (a → x → b) → (x → a) → x → b
+
+Example:
+
+    my $duplicate = sub { [ $_[0], $_[0] ] };
+
+    chain($duplicate, [1, 2, 3]); # [1, 1, 2, 2, 3, 3]
+
+    chain(append(), head())->([1, 2, 3]); # [1, 2, 3, 1]
+
 ## compose
 
     ((y → z), (x → y), …, (o → p), ((a, b, …, n) → o)) → ((a, b, …, n) → z)
