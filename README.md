@@ -430,28 +430,38 @@ Retrieve the value at a given path.
 ## pick
 
     [Str] -> {Str: *} -> {Str: *}
+    [PositiveInt] -> [a] -> {PositiveInt: a}
 
-Returns a partial copy of an object containing only the keys specified. If the
+Returns a partial copy of an HashRef containing only the keys specified. If the
 key does not exist, the property is ignored.
 
+Also allows the picking of elements from an ArrayRef by index.
+
     my $hash_ref = { a => 1, b => 2, c => 3, d => 4, e => 0 };
+    my $array_ref = [ sort keys %$hash_ref ];
 
     pick(['a', 'd'], $hash_ref); # { a => 1, d => 4 }
 
     pick(['a', 'e', 'f'], $hash_ref); # { a => 1, e => 0 }
 
+    pick_all([0, 2], $array_ref); # { 0 => 'a', 2 => 'c' }
+
 ## pick\_all
 
     [Str] -> {Str: *} -> {Str: *}
+    [PositiveInt] -> [a] -> {PositiveInt: a}
 
 Similar to pick except that this one includes a key: undef pair for keys
 that don't exist.
 
     my $hash_ref = { a => 1, b => 2, c => 3, d => 4, e => 0 };
+    my $array_ref = [ sort keys %$hash_ref ];
 
     pick_all(['a', 'd'], $hash_ref); # { a => 1, d => 4 }
 
     pick_all(['a', 'e', 'f'], $hash_ref); # { a => 1, e => 0, f => undef }
+
+    pick_all([0, 2], $array_ref); # { 0 => 'a', 2 => 'c' }
 
 ## product
 
