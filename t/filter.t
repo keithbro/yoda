@@ -1,6 +1,6 @@
 use Test::Most;
 
-use Yoda qw(filter);
+use Yoda qw(append filter flip);
 
 my $is_even = sub { shift() % 2 == 0 };
 
@@ -16,9 +16,7 @@ eq_or_diff(
     'filter a HashRef',
 );
 
-my $append = sub { [ @{$_[0]}, $_[1] ] };
-
-my $reducer = filter($is_even, $append);
+my $reducer = filter($is_even, flip(append()));
 eq_or_diff $reducer->([], 1), [], 'reducer - append';
 eq_or_diff $reducer->([], 2), [2], 'reducer - do not append';
 

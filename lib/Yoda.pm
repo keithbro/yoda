@@ -13,7 +13,7 @@ our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
     add always append chain complement compose concat cond contains converge
-    divide equals F filter group_by head identity if_else intersection
+    divide equals F filter flip group_by head identity if_else intersection
     is_defined juxt max memoize min multiply partition path pick pick_all
     product prop range reduce reject subtract sum T take to_lower to_upper
     transduce try_catch unfold zip_with
@@ -392,6 +392,18 @@ sub filter {
         return ref($filterable) eq 'HASH'
             ? _filter_hashref(@_)
             : _filter_arrayref(@_);
+    }, @_);
+}
+
+sub flip {
+    _curry1(sub {
+        my ($func) = @_;
+
+        return sub {
+            my $arg1 = shift;
+            my $arg2 = shift;
+            $func->($arg2, $arg1, @_);
+        };
     }, @_);
 }
 
@@ -985,12 +997,10 @@ sub take {
     _curry2(sub {
         my ($n) = @_;
 
-        my $append = sub { [ @{$_[0]}, $_[1] ] };
-
         my $ref_type = ref($_[1]);
         my $list              = $ref_type eq 'ARRAY' ? $_[1] : undef;
         my $string            = !$ref_type           ? $_[1] : undef;
-        my $reducing_function = $ref_type eq 'CODE'  ? $_[1] : $append;
+        my $reducing_function = $ref_type eq 'CODE'  ? $_[1] : flip(append());
 
         my $predicate = sub {
             my ($prev) = @_;
@@ -1252,11 +1262,9 @@ sub _curry_n {
 sub _filter_arrayref {
     my ($predicate, $arrayref_or_reducing_function) = @_;
 
-    my $append = sub { [ @{$_[0]}, $_[1] ] };
-
     my $ref = ref($arrayref_or_reducing_function);
     my $reducing_function =
-        $ref eq 'CODE' ? $arrayref_or_reducing_function : $append;
+        $ref eq 'CODE' ? $arrayref_or_reducing_function : flip(append());
 
     my $reducer = _build_filter_reducer($predicate)->($reducing_function);
     return $reducer if $ref eq 'CODE';
@@ -1278,11 +1286,9 @@ sub _filter_hashref {
 sub _map_arrayref {
     my ($function, $arrayref_or_reducing_function) = @_;
 
-    my $append = sub { [ @{$_[0]}, $_[1] ] };
-
     my $ref = ref($arrayref_or_reducing_function);
     my $reducing_function =
-        $ref eq 'CODE' ? $arrayref_or_reducing_function : $append;
+        $ref eq 'CODE' ? $arrayref_or_reducing_function : flip(append());
 
     my $reducer = _build_map_reducer($function)->($reducing_function);
     return $reducer if $ref eq 'CODE';

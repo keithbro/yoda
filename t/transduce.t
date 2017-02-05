@@ -1,8 +1,7 @@
 use Test::Most;
 
-use Yoda qw(add compose filter take transduce);
+use Yoda qw(add append compose filter flip take transduce);
 
-my $append = sub { [ @{$_[0]}, $_[1] ] };
 my $is_even = sub { $_[0] % 2 == 0 };
 my $numbers = [ 1..10 ];
 
@@ -18,7 +17,7 @@ eq_or_diff(
 );
 
 eq_or_diff(
-    transduce($transducer, $append, [], $numbers),
+    transduce($transducer, flip(append()), [], $numbers),
     [ 2, 4, 6 ],
 );
 
