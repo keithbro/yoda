@@ -985,26 +985,25 @@ sub take {
     _curry2(sub {
         my ($n) = @_;
 
+        my $append = sub { [ @{$_[0]}, $_[1] ] };
+
         my $ref_type = ref($_[1]);
         my $list              = $ref_type eq 'ARRAY' ? $_[1] : undef;
-        my $reducing_function = $ref_type eq 'CODE'  ? $_[1] : undef;
         my $string            = !$ref_type           ? $_[1] : undef;
+        my $reducing_function = $ref_type eq 'CODE'  ? $_[1] : $append;
 
-        if ($reducing_function) {
-            my $predicate = sub {
-                my ($prev) = @_;
-                return scalar(@$prev) < $n;
-            };
-            return _build_take_reducer($predicate)->($reducing_function);
-        }
+        my $predicate = sub {
+            my ($prev) = @_;
+            return scalar(@$prev) < $n;
+        };
+
+        my $reducer = _build_take_reducer($predicate)->($reducing_function);
+        return $reducer if $ref_type eq 'CODE';
 
         my @elements = $string ? split(//, $string) : @$list;
+        my $taken = reduce($reducer, [], \@elements);
 
-        my $max = scalar @elements < $n ? scalar @elements : $n;
-
-        my @taken = map { $elements[$_] } 0 .. $max - 1;
-
-        return $string ? CORE::join('', @taken) : [ @taken ];
+        return $string ? CORE::join('', @$taken) : $taken;
     }, @_);
 }
 
