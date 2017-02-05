@@ -409,11 +409,14 @@ arguments' order is reversed.
 
 sub flip {
     _curry1(sub {
-        my ($func) = @_;
+        my $func = shift;
+
         return sub {
-            my $arg1 = shift;
-            my $arg2 = shift;
-            $func->($arg2, $arg1, @_);
+            _curry2(sub {
+                my $arg1 = shift;
+                my $arg2 = shift;
+                $func->($arg2, $arg1, @_);
+            }, @_);
         };
     }, @_);
 }
@@ -747,10 +750,7 @@ Retrieve the value at a given path.
 =cut
 
 sub path {
-    _curry2(sub {
-        my ($path, $hashref) = @_;
-        reduce( sub { $_[0]->{$_[1]} }, $hashref, $path );
-    }, @_);
+    _curry2( sub { reduce( sub { $_[0]->{$_[1]} }, $_[1], $_[0] ) }, @_);
 }
 
 =head2 pick
