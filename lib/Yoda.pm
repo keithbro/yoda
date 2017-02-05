@@ -16,7 +16,7 @@ our @EXPORT_OK = qw(
     divide equals F filter group_by head identity if_else intersection
     is_defined juxt max memoize min multiply partition path pick pick_all
     product prop range reduce reject subtract sum T take to_lower to_upper
-    try_catch unfold zip_with
+    transduce try_catch unfold zip_with
 );
 
 =encoding utf-8
@@ -386,21 +386,20 @@ predicate.
 =cut
 
 sub filter {
-    _curry2(sub {
-        my ($predicate, $filterable) = @_;
+    my ($predicate, $filterable) = @_;
 
-        if (ref($filterable) eq 'ARRAY') {
-            return [ grep { $predicate->($_) } @$filterable ];
-        }
+    if (!$predicate) {
+        return sub { filter(@_) };
+    }
 
-        return {
-            map { $_ => $filterable->{$_} }
-            grep { $predicate->($filterable->{$_}) }
-            keys %$filterable
-        };
-    }, @_);
+    if (!$filterable) {
+        return sub { filter($predicate, @_) }
+    }
+
+    return ref($filterable) eq 'HASH'
+        ? _filter_hashref(@_)
+        : _filter_arrayref(@_);
 }
-
 
 =head2 group_by
 
@@ -616,17 +615,23 @@ function may be applied to [1, 2, 3] or {x => 1, y => 2, z => 3}.
 =cut
 
 sub map {
-    _curry2(sub {
-        my ($function, $functor) = @_;
+    my ($function, $functor) = @_;
 
-        if (ref($functor) eq 'ARRAY') {
-            return [ map { $function->($_) } @$functor ];
-        }
+    if (!$function) {
+        return sub { Yoda::map(@_) };
+    }
 
-        return {
-            map { $_ => $function->($functor->{$_}) }
-            keys %$functor
-        };
+    if (!$functor) {
+        return sub { Yoda::map($function, @_) }
+    }
+
+    return ref($functor) eq 'HASH' ? _map_hashref(@_) : _map_arrayref(@_);
+}
+
+sub transduce {
+    _curry4(sub {
+        my ($transducer, $reducing_function, $initial_value, $list) = @_;
+        reduce($transducer->($reducing_function), $initial_value, $list);
     }, @_);
 }
 
@@ -1187,9 +1192,38 @@ sub zip_with {
     }, @_);
 }
 
+sub _build_filter_reducer {
+    my ($predicate) = @_;
+
+    return sub {
+        my ($reducing_function) = @_;
+
+        return sub {
+            my ($prev, $next) = @_;
+            return $predicate->($next)
+                ? $reducing_function->($prev, $next)
+                : $prev;
+        };
+    };
+}
+
+sub _build_map_reducer {
+    my ($mapping_function) = @_;
+
+    return sub {
+        my ($reducing_function) = @_;
+
+        return sub {
+            my ($prev, $next) = @_;
+            return $reducing_function->($prev, $mapping_function->($next));
+        };
+    };
+}
+
 sub _curry1 { _curry_n(1, @_) }
 sub _curry2 { _curry_n(2, @_) }
 sub _curry3 { _curry_n(3, @_) }
+sub _curry4 { _curry_n(4, @_) }
 
 sub _curry_n {
     my ($arity, $func, @args) = @_;
@@ -1199,6 +1233,54 @@ sub _curry_n {
     }
 
     return sub { $func->(@args, @_) };
+}
+
+sub _filter_arrayref {
+    my ($predicate, $arrayref_or_reducing_function) = @_;
+
+    my $append = sub { [ @{$_[0]}, $_[1] ] };
+
+    my $ref = ref($arrayref_or_reducing_function);
+    my $reducing_function =
+        $ref eq 'CODE' ? $arrayref_or_reducing_function : $append;
+
+    my $reducer = _build_filter_reducer($predicate)->($reducing_function);
+    return $reducer if $ref eq 'CODE';
+
+    my $arrayref = $arrayref_or_reducing_function;
+    warn 'doing filter';
+    reduce($reducer, [], $arrayref);
+}
+
+sub _filter_hashref {
+    my ($predicate, $filterable) = @_;
+
+    return {
+        map { $_ => $filterable->{$_} }
+        grep { $predicate->($filterable->{$_}) }
+        keys %$filterable
+    };
+}
+
+sub _map_arrayref {
+    my ($function, $arrayref_or_reducing_function) = @_;
+
+    my $append = sub { [ @{$_[0]}, $_[1] ] };
+
+    my $ref = ref($arrayref_or_reducing_function);
+    my $reducing_function =
+        $ref eq 'CODE' ? $arrayref_or_reducing_function : $append;
+
+    my $map_reducer = _build_map_reducer($function)->($reducing_function);
+    return $map_reducer if $ref eq 'CODE';
+
+    my $arrayref = $arrayref_or_reducing_function;
+    reduce($map_reducer, [], $arrayref);
+}
+
+sub _map_hashref {
+    my ($function, $hashref) = @_;
+    return { map { $_ => $function->($hashref->{$_}) } keys %$hashref };
 }
 
 sub _to_string {
