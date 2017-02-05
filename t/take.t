@@ -1,6 +1,6 @@
 use Test::Most;
 
-use Yoda qw(append flip take);
+use Yoda qw(append flip reduced take);
 
 eq_or_diff take(1, ['foo', 'bar', 'baz']), ['foo'];
 eq_or_diff take(2, ['foo', 'bar', 'baz']), ['foo', 'bar'];
@@ -34,6 +34,6 @@ eq_or_diff(
 
 my $reducer = take(2, flip(append()));
 eq_or_diff($reducer->([1], 2), [1, 2], 'reducer - take');
-eq_or_diff($reducer->([1, 2], 3), [1, 2], 'reducer - do not take');
+eq_or_diff($reducer->([1, 2], 3), reduced(), 'reducer - do not take');
 
 done_testing;

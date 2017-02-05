@@ -15,8 +15,8 @@ our @EXPORT_OK = qw(
     add always append chain complement compose concat cond contains converge
     divide equals F filter flip group_by head identity if_else intersection
     is_defined juxt max memoize min multiply partition path pick pick_all
-    product prop range reduce reject subtract sum T take to_lower to_upper
-    transduce try_catch unfold zip_with
+    product prop range reduce reduced reject subtract sum T take to_lower
+    to_upper transduce try_catch unfold zip_with
 );
 
 =encoding utf-8
@@ -889,9 +889,33 @@ The iterator function receives two values: (acc, value).
 sub reduce {
     _curry3(sub {
         my ($iterator, $initial_value, $list) = @_;
-        List::Util::reduce { $iterator->($a, $b) } $initial_value, @$list;
+
+        my $value = $initial_value;
+        for my $element (@$list) {
+            my $value_or_reduced = $iterator->($value, $element);
+            last if ref($value_or_reduced) eq 'REDUCED';
+            $value = $value_or_reduced;
+        }
+        return $value;
     }, @_);
 }
+
+=head2 reduced
+
+    * -> REDUCED
+
+Returns a special value that indicates that reduction should cease.
+
+    my $reducer = sub {
+        my ($prev, $next) = @_;
+        return $prev >= 10 ? reduced() : $prev + $next;
+    };
+
+    reduce($reducer, 0, [ 1..5 ]); # 10
+
+=cut
+
+sub reduced { bless {}, 'REDUCED' }
 
 =head2 reduce_by
 
@@ -1273,7 +1297,7 @@ sub _build_take_reducer {
             my ($prev, $next) = @_;
             return $predicate->($prev)
                 ? $reducing_function->($prev, $next)
-                : $prev;
+                : reduced();
         };
     };
 }
