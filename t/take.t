@@ -32,4 +32,10 @@ eq_or_diff(
     ],
 );
 
+my $append = sub { [ @{$_[0]}, $_[1] ] };
+
+my $reducer = take(2, $append);
+eq_or_diff($reducer->([1], 2), [1, 2], 'reducer - take');
+eq_or_diff($reducer->([1, 2], 3), [1, 2], 'reducer - do not take');
+
 done_testing;

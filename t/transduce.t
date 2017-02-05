@@ -13,8 +13,13 @@ my $transducer = compose(
 );
 
 eq_or_diff(
+    $transducer->($numbers),
+    [3],
+);
+
+eq_or_diff(
     transduce($transducer, $append, [], $numbers),
-    [ 2, 4, 6, 8, 10 ],
+    [ 2, 4, 6 ],
 );
 
 done_testing;

@@ -628,13 +628,6 @@ sub map {
     return ref($functor) eq 'HASH' ? _map_hashref(@_) : _map_arrayref(@_);
 }
 
-sub transduce {
-    _curry4(sub {
-        my ($transducer, $reducing_function, $initial_value, $list) = @_;
-        reduce($transducer->($reducing_function), $initial_value, $list);
-    }, @_);
-}
-
 =head2 max
 
     [Num] → Num
@@ -877,6 +870,8 @@ The iterator function receives two values: (acc, value).
 
 =cut
 
+use Data::Dumper;
+
 sub reduce {
     _curry3(sub {
         my ($iterator, $initial_value, $list) = @_;
@@ -1001,21 +996,32 @@ Returns the first n elements of the given list or string.
 
 =cut
 
+use Data::Dumper;
+
 sub take {
     _curry2(sub {
-        my ($n, $list_or_string) = @_;
+        my ($n) = @_;
 
-        my $is_string = !ref($list_or_string);
+        my $ref_type = ref($_[1]);
+        my $list              = $ref_type eq 'ARRAY' ? $_[1] : undef;
+        my $reducing_function = $ref_type eq 'CODE'  ? $_[1] : undef;
+        my $string            = !$ref_type           ? $_[1] : undef;
 
-        my @elements = $is_string
-            ? split(//, $list_or_string)
-            : @$list_or_string;
+        if ($reducing_function) {
+            my $predicate = sub {
+                my ($prev) = @_;
+                return scalar(@$prev) < $n;
+            };
+            return _build_take_reducer($predicate)->($reducing_function);
+        }
+
+        my @elements = $string ? split(//, $string) : @$list;
 
         my $max = scalar @elements < $n ? scalar @elements : $n;
 
         my @taken = map { $elements[$_] } 0 .. $max - 1;
 
-        return $is_string ? CORE::join('', @taken) : [ @taken ];
+        return $string ? CORE::join('', @taken) : [ @taken ];
     }, @_);
 }
 
@@ -1042,6 +1048,17 @@ Returns the upper case version of a string.
 =cut
 
 sub to_upper { _curry1( sub { uc( $_[0] ) }, @_ ) }
+
+=head2 transduce
+
+=cut
+
+sub transduce {
+    _curry4(sub {
+        my ($transducer, $reducing_function, $initial_value, $list) = @_;
+        reduce($transducer->($reducing_function), $initial_value, $list);
+    }, @_);
+}
 
 =head2 transpose
 
@@ -1220,6 +1237,23 @@ sub _build_map_reducer {
     };
 }
 
+sub _build_take_reducer {
+    my ($predicate) = @_;
+
+    return sub {
+        my ($reducing_function) = @_;
+
+        return sub {
+            my ($prev, $next) = @_;
+            return $predicate->($prev)
+                ? $reducing_function->($prev, $next)
+                : $prev;
+        };
+    };
+}
+
+
+
 sub _curry1 { _curry_n(1, @_) }
 sub _curry2 { _curry_n(2, @_) }
 sub _curry3 { _curry_n(3, @_) }
@@ -1248,7 +1282,6 @@ sub _filter_arrayref {
     return $reducer if $ref eq 'CODE';
 
     my $arrayref = $arrayref_or_reducing_function;
-    warn 'doing filter';
     reduce($reducer, [], $arrayref);
 }
 
