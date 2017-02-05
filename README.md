@@ -615,9 +615,9 @@ from the array, and then passing the result to the next call.
     my $numbers = [ 1..10 ];
 
     my $transducer = compose(
-        Yoda::map(add(1)),
-        filter($is_even),
-        take(3),
+        Yoda::map(add(1)), # [ 2..11 ]
+        filter($is_even),  # [ 2, 4, 6, 8, 10 ]
+        take(3),           # [ 2, 4, 6 ]
     );
 
     transduce($transducer, flip(append()), [], $numbers); # [ 2, 4, 6 ]
