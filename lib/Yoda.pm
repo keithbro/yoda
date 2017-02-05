@@ -386,19 +386,13 @@ predicate.
 =cut
 
 sub filter {
-    my ($predicate, $filterable) = @_;
+    _curry2(sub {
+        my ($predicate, $filterable) = @_;
 
-    if (!$predicate) {
-        return sub { filter(@_) };
-    }
-
-    if (!$filterable) {
-        return sub { filter($predicate, @_) }
-    }
-
-    return ref($filterable) eq 'HASH'
-        ? _filter_hashref(@_)
-        : _filter_arrayref(@_);
+        return ref($filterable) eq 'HASH'
+            ? _filter_hashref(@_)
+            : _filter_arrayref(@_);
+    }, @_);
 }
 
 =head2 group_by
@@ -615,17 +609,10 @@ function may be applied to [1, 2, 3] or {x => 1, y => 2, z => 3}.
 =cut
 
 sub map {
-    my ($function, $functor) = @_;
-
-    if (!$function) {
-        return sub { Yoda::map(@_) };
-    }
-
-    if (!$functor) {
-        return sub { Yoda::map($function, @_) }
-    }
-
-    return ref($functor) eq 'HASH' ? _map_hashref(@_) : _map_arrayref(@_);
+    _curry2(sub {
+        my ($function, $functor) = @_;
+        return ref($functor) eq 'HASH' ? _map_hashref(@_) : _map_arrayref(@_);
+    }, @_);
 }
 
 =head2 max
@@ -1248,8 +1235,6 @@ sub _build_take_reducer {
     };
 }
 
-
-
 sub _curry1 { _curry_n(1, @_) }
 sub _curry2 { _curry_n(2, @_) }
 sub _curry3 { _curry_n(3, @_) }
@@ -1300,11 +1285,11 @@ sub _map_arrayref {
     my $reducing_function =
         $ref eq 'CODE' ? $arrayref_or_reducing_function : $append;
 
-    my $map_reducer = _build_map_reducer($function)->($reducing_function);
-    return $map_reducer if $ref eq 'CODE';
+    my $reducer = _build_map_reducer($function)->($reducing_function);
+    return $reducer if $ref eq 'CODE';
 
     my $arrayref = $arrayref_or_reducing_function;
-    reduce($map_reducer, [], $arrayref);
+    reduce($reducer, [], $arrayref);
 }
 
 sub _map_hashref {
