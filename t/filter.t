@@ -19,7 +19,7 @@ eq_or_diff(
 my $append = sub { [ @{$_[0]}, $_[1] ] };
 
 my $reducer = filter($is_even, $append);
-eq_or_diff $reducer->([], 1), [], 'reducer';
-eq_or_diff $reducer->([], 2), [2], 'reducer';
+eq_or_diff $reducer->([], 1), [], 'reducer - append';
+eq_or_diff $reducer->([], 2), [2], 'reducer - do not append';
 
 done_testing;

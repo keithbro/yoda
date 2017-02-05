@@ -870,8 +870,6 @@ The iterator function receives two values: (acc, value).
 
 =cut
 
-use Data::Dumper;
-
 sub reduce {
     _curry3(sub {
         my ($iterator, $initial_value, $list) = @_;
@@ -995,8 +993,6 @@ Returns the first n elements of the given list or string.
     # ['Dave Brubeck', 'Paul Desmond', 'Eugene Wright', 'Joe Morello', 'Gerry Mulligan']
 
 =cut
-
-use Data::Dumper;
 
 sub take {
     _curry2(sub {
