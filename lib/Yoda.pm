@@ -82,12 +82,7 @@ Returns a function that always returns the given value.
 
 =cut
 
-sub always {
-    _curry1(sub {
-        my ($const) = @_;
-        sub { $const }
-    }, @_);
-}
+sub always { _curry1( sub { my ($c) = @_; return sub { $c } }, @_ ) }
 
 =head2 append
 
@@ -415,7 +410,6 @@ arguments' order is reversed.
 sub flip {
     _curry1(sub {
         my ($func) = @_;
-
         return sub {
             my $arg1 = shift;
             my $arg2 = shift;
@@ -460,7 +454,7 @@ to values returned.
 
 =cut
 
-sub group_by { _curry2(sub { reduce_by(append(), [], @_) }, @_) }
+sub group_by { _curry2( sub { reduce_by(append(), [], @_ ) }, @_) }
 
 =head2 head
 
@@ -586,7 +580,7 @@ concatenating all the elements into a single string.
 
 =cut
 
-sub join { _curry2(sub { join( $_[0], @{$_[1]} ) }, @_) }
+sub join { _curry2( sub { join( $_[0], @{$_[1]} ) }, @_ ) }
 
 =head2 juxt
 
@@ -654,7 +648,7 @@ Returns the larger of its two arguments.
 
 =cut
 
-sub max { _curry2(sub { List::Util::max(@_) }, @_) }
+sub max { _curry2( sub { List::Util::max(@_) }, @_ ) }
 
 =head2 memoize
 
@@ -703,7 +697,7 @@ Returns the smaller of its two arguments.
 
 =cut
 
-sub min { _curry2( sub { List::Util::min(@_) }, @_) }
+sub min { _curry2( sub { List::Util::min(@_) }, @_ ) }
 
 =head2 multiply
 
@@ -715,7 +709,7 @@ Multiples two numbers.
 
 =cut
 
-sub multiply { _curry2( sub { shift() * shift() }, @_ ) }
+sub multiply { _curry2( sub { $_[0] * $_[1] }, @_ ) }
 
 =head2 partition
 
@@ -755,11 +749,7 @@ Retrieve the value at a given path.
 sub path {
     _curry2(sub {
         my ($path, $hashref) = @_;
-
-        my $value = $hashref;
-        $value = $value->{$_} for @$path;
-
-        return $value;
+        reduce( sub { $_[0]->{$_[1]} }, $hashref, $path );
     }, @_);
 }
 
@@ -829,16 +819,7 @@ sub pick_all {
 
 =cut
 
-sub product {
-    _curry1(sub {
-        my ($numbers) = @_;
-
-        my $value = 1;
-        $value = $value * $_ for @$numbers;
-
-        return $value;
-    }, @_);
-}
+sub product { _curry1( sub { reduce( multiply(), 1, $_[0] ) }, @_) }
 
 =head2 prop
 
@@ -849,15 +830,11 @@ of that HashRef, if it exists.
 
     prop('x', {x => 100}); # 100
     prop('x', {}); # undef
+    prop('x', undef); # throws exception
 
 =cut
 
-sub prop {
-    _curry2(sub {
-        my ($key, $hashref) = @_;
-        return { %$hashref }->{$key};
-    }, @_);
-}
+sub prop { _curry2( sub { +{ %{$_[1]} }->{$_[0]} }, @_ ) }
 
 =head2 range
 
@@ -865,12 +842,7 @@ sub prop {
 
 =cut
 
-sub range {
-    _curry2(sub {
-        my ($from, $to) = @_;
-        return [ $from .. $to ];
-    }, @_);
-}
+sub range { _curry2( sub { [ $_[0]..$_[1] ] }, @_ ) }
 
 =head2 reduce
 
@@ -936,7 +908,6 @@ sub reduce_by {
         }
 
         return \%h;
-
     }, @_);
 }
 
@@ -977,17 +948,7 @@ sub reject {
 
 =cut
 
-sub subtract { _curry2(sub { shift() - shift() }, @_) }
-
-=head2 T
-
-    * → Bool
-
-A function that always returns 1. Any passed in parameters are ignored.
-
-    T(); # 1
-
-=cut
+sub subtract { _curry2( sub { $_[0] - $_[1] }, @_ ) }
 
 =head2 sum
 
@@ -999,7 +960,17 @@ Adds together all the elements of a list.
 
 =cut
 
-sub sum { _curry1(sub { List::Util::reduce { $a + $b } 0, @{$_[0]} }, @_) }
+sub sum { _curry1( sub { reduce( add(), 0, @_ ) }, @_ ) }
+
+=head2 T
+
+    * → Bool
+
+A function that always returns 1. Any passed in parameters are ignored.
+
+    T(); # 1
+
+=cut
 
 sub T { sub { 1 } }
 
@@ -1218,7 +1189,7 @@ sub uniq {
 
 =cut
 
-sub union { _curry2(sub { uniq( [ map { @$_ } @_ ] ) }, @_) }
+sub union { _curry2( sub { uniq( [ map { @$_ } @_ ] ) }, @_ ) }
 
 =head2 where_eq
 
