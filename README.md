@@ -491,6 +491,7 @@ of that HashRef, if it exists.
 
     prop('x', {x => 100}); # 100
     prop('x', {}); # undef
+    prop('x', undef); # throws exception
 
 ## range
 
@@ -542,14 +543,6 @@ The complement of filter.
 
     Num → Num → Num
 
-## T
-
-    * → Bool
-
-A function that always returns 1. Any passed in parameters are ignored.
-
-    T(); # 1
-
 ## sum
 
     [Num] → Num
@@ -557,6 +550,14 @@ A function that always returns 1. Any passed in parameters are ignored.
 Adds together all the elements of a list.
 
     sum([2,4,6,8,100,1]); # 121
+
+## T
+
+    * → Bool
+
+A function that always returns 1. Any passed in parameters are ignored.
+
+    T(); # 1
 
 ## take
 
