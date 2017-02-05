@@ -14,11 +14,13 @@ my $transducer = compose(
 eq_or_diff(
     $transducer->($numbers),
     [3],
+    'composition goes right to left',
 );
 
 eq_or_diff(
     transduce($transducer, flip(append()), [], $numbers),
     [ 2, 4, 6 ],
+    'transduced numbers left to right',
 );
 
 done_testing;

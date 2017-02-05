@@ -395,6 +395,23 @@ sub filter {
     }, @_);
 }
 
+=head2 flip
+
+    (a → b → c → … → z) → (b → a → c → … → z)
+
+Returns a new function much like the supplied one, except that the first two
+arguments' order is reversed.
+
+    my $merge_three = sub {
+        my ($x, $y, $z) = @_;
+        [ $x, $y, $z ];
+    };
+
+    $merge_three->(1, 2, 3); # [1, 2, 3]
+    flip($merge_three)->(1, 2, 3); # [2, 1, 3]
+
+=cut
+
 sub flip {
     _curry1(sub {
         my ($func) = @_;
@@ -1042,6 +1059,23 @@ Returns the upper case version of a string.
 sub to_upper { _curry1( sub { uc( $_[0] ) }, @_ ) }
 
 =head2 transduce
+
+    (c → c) → (a,b → a) → a → [b] → a
+
+Initializes a transducer using supplied iterator function. Returns a single
+item by iterating through the list, successively calling the transformed
+iterator function and passing it an accumulator value and the current value
+from the array, and then passing the result to the next call.
+
+    my $numbers = [ 1..10 ];
+
+    my $transducer = compose(
+        Yoda::map(add(1)),
+        filter($is_even),
+        take(3),
+    );
+
+    transduce($transducer, flip(append()), [], $numbers); # [ 2, 4, 6 ]
 
 =cut
 
