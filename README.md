@@ -220,6 +220,21 @@ predicate.
 
     filter($is_even, {a => 1, b => 2, c => 3, d => 4}); # {b => 2, d => 4}
 
+## flip
+
+    (a → b → c → … → z) → (b → a → c → … → z)
+
+Returns a new function much like the supplied one, except that the first two
+arguments' order is reversed.
+
+    my $merge_three = sub {
+        my ($x, $y, $z) = @_;
+        [ $x, $y, $z ];
+    };
+
+    $merge_three->(1, 2, 3); # [1, 2, 3]
+    flip($merge_three)->(1, 2, 3); # [2, 1, 3]
+
 ## group\_by
 
     (a → Str) → [a] → {Str: [a]}
@@ -493,6 +508,19 @@ The iterator function receives two values: (acc, value).
 
     reduce(subtract, 0, [1, 2, 3, 4]) # ((((0 - 1) - 2) - 3) - 4) = -10
 
+## reduced
+
+    * -> REDUCED
+
+Returns a special value that indicates that reduction should cease.
+
+    my $reducer = sub {
+        my ($prev, $next) = @_;
+        return $prev >= 10 ? reduced() : $prev + $next;
+    };
+
+    reduce($reducer, 0, [ 1..5 ]); # 10
+
 ## reduce\_by
 
     ((a, b) → a) → a → (b → Str) → [b] → {Str: a}
@@ -574,6 +602,25 @@ Returns the lower case version of a string.
 Returns the upper case version of a string.
 
     to_upper('abc'); # 'ABC'
+
+## transduce
+
+    (c → c) → (a,b → a) → a → [b] → a
+
+Initializes a transducer using supplied iterator function. Returns a single
+item by iterating through the list, successively calling the transformed
+iterator function and passing it an accumulator value and the current value
+from the array, and then passing the result to the next call.
+
+    my $numbers = [ 1..10 ];
+
+    my $transducer = compose(
+        Yoda::map(add(1)),
+        filter($is_even),
+        take(3),
+    );
+
+    transduce($transducer, flip(append()), [], $numbers); # [ 2, 4, 6 ]
 
 ## transpose
 
