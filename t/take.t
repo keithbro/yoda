@@ -33,7 +33,17 @@ eq_or_diff(
 );
 
 my $reducer = take(2, flip(append()));
-eq_or_diff($reducer->([1], 2), [1, 2], 'reducer - take');
-eq_or_diff($reducer->([1, 2], 3), reduced(), 'reducer - do not take');
+
+eq_or_diff($reducer->([], 1), [1], 'reducer - not last');
+
+my $final = $reducer->([1], 2);
+is ref($final), 'Yoda::Reduced', 'reducer - last - ref';
+eq_or_diff($final->{value}, [1, 2], 'reducer - last - value');
+
+throws_ok(
+    sub { $reducer->([1, 2], 3) },
+    qr/Died/,
+    'die when limit exceeded',
+);
 
 done_testing;

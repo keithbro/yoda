@@ -864,9 +864,14 @@ sub reduce {
 
         my $value = $initial_value;
         for my $element (@$list) {
-            my $value_or_reduced = $iterator->($value, $element);
-            last if ref($value_or_reduced) eq 'REDUCED';
-            $value = $value_or_reduced;
+            my $next_value = $iterator->($value, $element);
+
+            if (ref($next_value) eq 'Yoda::Reduced') {
+                $value = $next_value->{value};
+                last;
+            }
+
+            $value = $next_value;
         }
         return $value;
     }, @_);
@@ -874,20 +879,21 @@ sub reduce {
 
 =head2 reduced
 
-    * -> REDUCED
+    * -> Yoda::Reduced
 
-Returns a special value that indicates that reduction should cease.
+Returns a value wrapped to indicate that it is the final value of the reduce
+and transduce functions.
 
     my $reducer = sub {
-        my ($prev, $next) = @_;
-        return $prev >= 10 ? reduced() : $prev + $next;
+        my $sum = sum(\@_);
+        return $sum >= 10 ? reduced($sum) : $sum;
     };
 
     reduce($reducer, 0, [ 1..5 ]); # 10
 
 =cut
 
-sub reduced { bless {}, 'REDUCED' }
+sub reduced { bless( { value => $_[0] }, 'Yoda::Reduced' ) }
 
 =head2 reduce_by
 
@@ -1016,7 +1022,8 @@ sub take {
 
         my $predicate = sub {
             my ($prev) = @_;
-            return scalar(@$prev) < $n;
+            my $size = scalar(@$prev);
+            return ($size < $n) ? 1 : ($size == $n) ? 0 : die();
         };
 
         my $reducer = _build_take_reducer($predicate)->($reducing_function);
@@ -1265,10 +1272,8 @@ sub _build_take_reducer {
         my ($reducing_function) = @_;
 
         return sub {
-            my ($prev, $next) = @_;
-            return $predicate->($prev)
-                ? $reducing_function->($prev, $next)
-                : reduced();
+            my $reduced = $reducing_function->(@_);
+            return $predicate->($reduced) ? $reduced : reduced($reduced);
         };
     };
 }
