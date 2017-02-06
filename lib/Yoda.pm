@@ -16,7 +16,7 @@ our @EXPORT_OK = qw(
     divide equals F filter flip group_by head identity if_else intersection
     is_defined juxt max memoize min multiply partition path pick pick_all
     product prop range reduce reduced reject subtract sum T take to_lower
-    to_upper transduce try_catch unfold zip_with
+    to_upper transduce try_catch unfold values zip_with
 );
 
 =encoding utf-8
@@ -1197,6 +1197,21 @@ sub uniq {
 =cut
 
 sub union { _curry2( sub { uniq( [ map { @$_ } @_ ] ) }, @_ ) }
+
+=head2 values
+
+    {Str: *} → [*]
+
+Returns an ArrayRef of values from the supplied HashRef. The values are sorted
+by their keys.
+
+    values({ a => 1, b => 3, c => 2 }); # [1, 3, 2]
+
+=cut
+
+sub values {
+    _curry1( sub { [ map { $_[0]->{$_} } sort keys %{$_[0]} ] }, @_ );
+}
 
 =head2 where_eq
 
