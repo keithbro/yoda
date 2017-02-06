@@ -64,6 +64,16 @@ given element.
     append('tests', []);                    # ['tests']
     append(['tests'], ['write', 'more']);   # ['write', 'more', ['tests']]
 
+## apply
+
+    (*… → a) → [*] → a
+
+Applies function fn to the argument list args. This is useful for creating a
+fixed-arity function from a variadic function.
+
+    my $numbers = [1, 2, 3, -99, 42, 6, 7];
+    apply(\&List::Util::max, $numbers); # 42
+
 ## chain
 
     Chain m => (a → m b) → m a → m b
@@ -511,13 +521,14 @@ The iterator function receives two values: (acc, value).
 
 ## reduced
 
-    * -> REDUCED
+    * -> Yoda::Reduced
 
-Returns a special value that indicates that reduction should cease.
+Returns a value wrapped to indicate that it is the final value of the reduce
+and transduce functions.
 
     my $reducer = sub {
-        my ($prev, $next) = @_;
-        return $prev >= 10 ? reduced() : $prev + $next;
+        my $sum = sum(\@_);
+        return $sum >= 10 ? reduced($sum) : $sum;
     };
 
     reduce($reducer, 0, [ 1..5 ]); # 10
@@ -640,6 +651,24 @@ the tryer and catcher functions must return the same type of results.
     try_catch(prop('x'), F())({x => 1}); # 1
     try_catch(prop('x'), F())(undef); # ''
 
+## unapply
+
+    ([*…] → a) → (*… → a)
+
+Takes a function fn, which takes a single array argument, and returns a
+function which:
+
+\* takes any number of positional arguments;
+\* passes these arguments to fn as an array; and
+\* returns the result.
+
+In other words, unapply derives a variadic function from a function which
+takes an array. unapply is the inverse of apply.
+
+    my $join_with_space = Yoda::join(' ');
+
+    unapply($join_with_space)->('hello', 'world'); # 'hello world'
+
 ## unfold
 
     (a → [b]) → * → [b]
@@ -662,6 +691,15 @@ The iterator function receives one argument: (seed).
 ## union
 
     [*] → [*] → [*]
+
+## values
+
+    {Str: *} → [*]
+
+Returns an ArrayRef of values from the supplied HashRef. The values are sorted
+by their keys.
+
+    values({ a => 1, b => 3, c => 2 }); # [1, 3, 2]
 
 ## where\_eq
 

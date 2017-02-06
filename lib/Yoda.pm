@@ -12,11 +12,11 @@ use Try::Tiny;
 our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
-    add always append chain complement compose concat cond contains converge
-    divide equals F filter flip group_by head identity if_else intersection
-    is_defined juxt max memoize min multiply partition path pick pick_all
-    product prop range reduce reduced reject subtract sum T take to_lower
-    to_upper transduce try_catch unfold values zip_with
+    add always append apply chain complement compose concat cond contains
+    converge divide equals F filter flip group_by head identity if_else
+    intersection is_defined juxt max memoize min multiply partition path pick
+    pick_all product prop range reduce reduced reject subtract sum T take
+    to_lower to_upper transduce try_catch unapply unfold values zip_with
 );
 
 =encoding utf-8
@@ -98,6 +98,20 @@ given element.
 =cut
 
 sub append { _curry2( sub { [ @{$_[1]}, $_[0] ] }, @_ ) }
+
+=head2 apply
+
+    (*… → a) → [*] → a
+
+Applies function fn to the argument list args. This is useful for creating a
+fixed-arity function from a variadic function.
+
+    my $numbers = [1, 2, 3, -99, 42, 6, 7];
+    apply(\&List::Util::max, $numbers); # 42
+
+=cut
+
+sub apply { _curry2( sub { $_[0]->(@{$_[1]}) }, @_) }
 
 =head2 chain
 
@@ -1139,6 +1153,33 @@ sub try_catch {
                 $catcher->($_);
             };
         };
+    }, @_);
+}
+
+=head2 unapply
+
+    ([*…] → a) → (*… → a)
+
+Takes a function fn, which takes a single array argument, and returns a
+function which:
+
+* takes any number of positional arguments;
+* passes these arguments to fn as an array; and
+* returns the result.
+
+In other words, unapply derives a variadic function from a function which
+takes an array. unapply is the inverse of apply.
+
+    my $join_with_space = Yoda::join(' ');
+
+    unapply($join_with_space)->('hello', 'world'); # 'hello world'
+
+=cut
+
+sub unapply {
+    _curry1(sub {
+        my ($func) = @_;
+        return sub { $func->(\@_) };
     }, @_);
 }
 
