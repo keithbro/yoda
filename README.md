@@ -230,6 +230,16 @@ predicate.
 
     filter($is_even, {a => 1, b => 2, c => 3, d => 4}); # {b => 2, d => 4}
 
+## flatten
+
+    [a] → [b]
+
+Returns a new ArrayRef by pulling every element out of it (and all its
+sub-ArrayRefs) and
+putting them in a new ArrayRef, depth-first.
+
+    flatten([1, 2, [3, 4], 5, [6, [7, 8, [9, [10, 11], 12]]]]) # [1..12]
+
 ## flip
 
     (a → b → c → … → z) → (b → a → c → … → z)

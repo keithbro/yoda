@@ -13,7 +13,7 @@ our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
     add always append apply chain complement compose concat cond contains
-    converge divide equals F filter flip group_by head identity if_else
+    converge divide equals F filter flatten flip group_by head identity if_else
     intersection is_defined juxt max memoize min multiply partition path pick
     pick_all product prop range reduce reduced reject subtract sum T take
     to_lower to_upper transduce try_catch unapply unfold values zip_with
@@ -403,6 +403,20 @@ sub filter {
             : _filter_arrayref(@_);
     }, @_);
 }
+
+=head2 flatten
+
+    [a] → [b]
+
+Returns a new ArrayRef by pulling every element out of it (and all its
+sub-ArrayRefs) and
+putting them in a new ArrayRef, depth-first.
+
+    flatten([1, 2, [3, 4], 5, [6, [7, 8, [9, [10, 11], 12]]]]) # [1..12]
+
+=cut
+
+sub flatten { _curry1( sub { [ _flatten($_[0]) ] }, @_ ) }
 
 =head2 flip
 
@@ -1372,6 +1386,14 @@ sub _filter_hashref {
         keys %$filterable
     };
 }
+
+# _flatten
+#
+#   [*] → *…
+#
+# Given an ArrayRef, return a list completely flattened.
+
+sub _flatten { map { ref $_ ? _flatten($_) : $_ } @{$_[0]} }
 
 sub _map_arrayref {
     my ($function, $arrayref_or_reducing_function) = @_;
