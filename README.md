@@ -801,7 +801,20 @@ by their keys.
 
 ## where\_eq
 
-    {Str: *} → {Str: *} → Bool
+    HashRef[a] → HashRef[b] → Bool
+
+Takes a $spec object and a $test object; returns 1 if the test satisfies the
+spec, undef otherwise. An object satisfies the spec if, for each of the specs
+own properties, accessing that property of the test object gives the same value
+(in Yoda::equals terms) as accessing that property of the spec.
+
+    my $pred = where_eq({ a => 1, b => 2 });
+
+    $pred->({ a => 1 });                    # undef
+    $pred->({ a => 1, b => 2 });            # 1
+    $pred->({ a => 1, b => 2, c => 3 });    # 1
+    $pred->({ a => 1, b => 1 });            # undef
+    $pred->({ a => '1', b => '2' });        # undef
 
 ## zip\_with
 

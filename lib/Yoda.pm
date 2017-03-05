@@ -7,7 +7,6 @@ use Exporter 'import';
 use JSON::XS qw(encode_json);
 use List::Util qw();
 use Scalar::Util qw(blessed);
-use Test::Deep::NoTest qw(cmp_details superhashof);
 use Try::Tiny;
 
 our $VERSION = "0.01";
@@ -18,7 +17,7 @@ our @EXPORT_OK = qw(
     identity if_else intersection is_defined juxt lt max memoize min multiply
     partition path pick pick_all product prop range reduce reduced reject
     replace subtract sum T take to_lower to_upper transduce try_catch unapply
-    unfold values zip_with
+    unfold values where_eq zip_with
 );
 
 =encoding utf-8
@@ -439,12 +438,7 @@ does not handles cyclical data structures, unlike Ramda.
 
 =cut
 
-sub equals {
-    _curry2(sub {
-        my ($x, $y) = @_;
-        return _to_string($x) eq _to_string($y);
-    }, @_);
-}
+sub equals { _curry2( sub { _to_string($_[0]) eq _to_string($_[1]) }, @_ ) }
 
 =head2 F
 
@@ -1428,15 +1422,32 @@ sub values {
 
 =head2 where_eq
 
-    {Str: *} → {Str: *} → Bool
+    HashRef[a] → HashRef[b] → Bool
+
+Takes a $spec object and a $test object; returns 1 if the test satisfies the
+spec, undef otherwise. An object satisfies the spec if, for each of the specs
+own properties, accessing that property of the test object gives the same value
+(in Yoda::equals terms) as accessing that property of the spec.
+
+    my $pred = where_eq({ a => 1, b => 2 });
+
+    $pred->({ a => 1 });                    # undef
+    $pred->({ a => 1, b => 2 });            # 1
+    $pred->({ a => 1, b => 2, c => 3 });    # 1
+    $pred->({ a => 1, b => 1 });            # undef
+    $pred->({ a => '1', b => '2' });        # undef
 
 =cut
 
 sub where_eq {
     _curry2(sub {
         my ($spec, $test) = @_;
-        my ($ok) = cmp_details($test, superhashof($spec));
-        return $ok;
+
+        for my $k (keys %$spec) {
+            return unless equals( $test->{$k}, $spec->{$k} );
+        }
+
+        return 1;
     }, @_);
 }
 
@@ -1596,7 +1607,7 @@ sub _replace_using_coderef {
 
 sub _to_string {
     my ($value) = @_;
-    return ref($value) ? encode_json($value) : encode_json({ a => $value });
+    return ref($value) ? encode_json($value) : encode_json({ _ => $value });
 }
 
 # _uniq
