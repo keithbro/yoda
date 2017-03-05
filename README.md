@@ -406,12 +406,15 @@ Returns the number of elements in the array.
 
     a → a → Bool
 
-Returns 1 if the first argument is less than the second argument, undef
-otherwise.
+Returns 1 if the first argument is less (according to the ASCII table) than the
+second argument, undef otherwise.
 
-    lt(2, 1); # undef
-    lt(2, 2); # undef
-    lt(2, 3); # 1
+    lt(2, 1);       # undef
+    lt(2, 2);       # undef
+    lt(2, 3);       # 1
+    lt('a', 'z');   # 1
+    !lt('z', 'a');  # undef
+    lt(5, '^');     # 1
 
 ## map
 
