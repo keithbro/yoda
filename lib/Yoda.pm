@@ -6,6 +6,7 @@ use warnings;
 use Exporter 'import';
 use JSON::XS qw(encode_json);
 use List::Util qw();
+use Scalar::Util qw(blessed);
 use Test::Deep::NoTest qw(cmp_details superhashof);
 use Try::Tiny;
 
@@ -902,10 +903,12 @@ sub product { _curry1( sub { reduce( multiply(), 1, $_[0] ) }, @_) }
 
 =head2 prop
 
-    s → {s: a} → a | undef
+    Stringable s => s → HashRef[a]|Blessed → Maybe[a]
 
-Returns a function that when supplied a HashRef returns the indicated value
-of that HashRef, if it exists.
+Given a $key and either a HashRef or a blessed $object, returns the attribute
+value for that $key. Equivalent to:
+
+    $hashref->{$key} or $blessed_object->$key()
 
     prop('x', {x => 100}); # 100
     prop('x', {}); # undef
@@ -913,7 +916,16 @@ of that HashRef, if it exists.
 
 =cut
 
-sub prop { _curry2( sub { +{ %{$_[1]} }->{$_[0]} }, @_ ) }
+sub prop {
+    _curry2(sub {
+        my ($key, $object) = @_;
+
+        return $object->{$key} if ref($object) eq 'HASH';
+        return $object->$key() if blessed($object);
+
+        die 'second argument must be a HashRef or blessed';
+    }, @_)
+}
 
 =head2 range
 

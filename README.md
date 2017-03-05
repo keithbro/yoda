@@ -540,10 +540,12 @@ that don't exist.
 
 ## prop
 
-    s → {s: a} → a | undef
+    Stringable s => s → HashRef[a]|Blessed → Maybe[a]
 
-Returns a function that when supplied a HashRef returns the indicated value
-of that HashRef, if it exists.
+Given a $key and either a HashRef or a blessed $object, returns the attribute
+value for that $key. Equivalent to:
+
+    $hashref->{$key} or $blessed_object->$key()
 
     prop('x', {x => 100}); # 100
     prop('x', {}); # undef
