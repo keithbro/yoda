@@ -15,10 +15,10 @@ our $VERSION = "0.01";
 our @EXPORT_OK = qw(
     __ add always any append apply chain complement compose concat cond
     contains converge curry_n divide equals F filter flatten flip group_by head
-    identity if_else intersection is_defined juxt lt max memoize min multiply
-    partition path pick pick_all product prop range reduce reduced reject
-    replace subtract sum T take to_lower to_upper transduce transpose try_catch
-    type unapply unfold union uniq values where_eq zip_with
+    identity if_else intersection is_defined is_empty juxt lt max memoize min
+    multiply partition path pick pick_all product prop range reduce reduced
+    reject replace subtract sum T take to_lower to_upper transduce transpose
+    try_catch type unapply unfold union uniq values where_eq zip_with
 );
 
 =encoding utf-8
@@ -674,6 +674,40 @@ Checks if the input value is defined.
 =cut
 
 sub is_defined { _curry1( sub { defined $_[0] }, @_ ) }
+
+=head2 is_empty
+
+    * -> Bool
+
+Returns 1 if the given value is its type's empty value; undef otherwise.
+
+    is_empty([]); # 1
+    is_empty({}); # 1
+    is_empty(''); # 1
+
+    is_empty([1, 2, 3]); # undef
+    is_empty({length => 0}); # undef
+    is_empty('hello'); # undef
+
+    is_empty(0); # undef
+    is_empty(undef); # undef
+    is_empty(bless({}, 'Animal')); # undef
+
+=cut
+
+sub is_empty {
+    _curry1(sub {
+        my ($value) = @_;
+
+        if (!ref $value) {
+            return defined $value && $value eq '';
+        }
+
+        return
+            (ref $value eq 'ARRAY' && !@$value) ||
+            (ref $value eq 'HASH'  && !%$value);
+    }, @_);
+}
 
 =head2 join
 
@@ -1363,7 +1397,7 @@ answers as 'Hash', 'Integer', 'Array', or 'Undef'.
     type([]); # Array
     type(qr/[A-z]/); # Regexp
     type(type()); # Code
-    type(bless({}, 'Animal::Dog')), 'Animal::Dog';
+    type(bless({}, 'Animal::Dog')); # 'Animal::Dog'
 
 =cut
 

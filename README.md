@@ -393,6 +393,24 @@ Checks if the input value is defined.
     is_defined(undef); # ''
     is_defined(3);     # 1
 
+## is\_empty
+
+    * -> Bool
+
+Returns 1 if the given value is its type's empty value; undef otherwise.
+
+    is_empty([]); # 1
+    is_empty({}); # 1
+    is_empty(''); # 1
+
+    is_empty([1, 2, 3]); # undef
+    is_empty({length => 0}); # undef
+    is_empty('hello'); # undef
+
+    is_empty(0); # undef
+    is_empty(undef); # undef
+    is_empty(bless({}, 'Animal')); # undef
+
 ## join
 
     Str → [a] → Str
@@ -788,7 +806,7 @@ answers as 'Hash', 'Integer', 'Array', or 'Undef'.
     type([]); # Array
     type(qr/[A-z]/); # Regexp
     type(type()); # Code
-    type(bless({}, 'Animal::Dog')), 'Animal::Dog';
+    type(bless({}, 'Animal::Dog')); # 'Animal::Dog'
 
 ## unapply
 
