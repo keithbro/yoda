@@ -1388,15 +1388,18 @@ sub unfold {
 
     [a] → [a]
 
+Returns a new list containing only one copy of each element in the original
+list.
+
+Order is not preserved for performance reasons.
+
+    uniq([1, 1, 2, 1]); # [1, 2]
+    uniq([1, '1']);     # [1, '1']
+    uniq([[42], [42]]); # [[42]]
+
 =cut
 
-sub uniq {
-    _curry1(sub {
-        my ($elements) = @_;
-        my $element_for_string = _uniq($elements);
-        return [ values %$element_for_string ];
-    }, @_);
-}
+sub uniq { _curry1( sub { Yoda::values( _uniq( $_[0] ) ) }, @_ ) }
 
 =head2 union
 
@@ -1415,27 +1418,20 @@ Order is not preserved for performance reasons.
 
 =cut
 
-sub union {
-    _curry2(sub {
-        my %h = map { _to_string($_) => $_ } @{$_[0]}, @{$_[1]};
-        return [ values %h ];
-    }, @_);
-}
+sub union { _curry2( sub { uniq( concat( $_[0], $_[1] ) ) }, @_) }
 
 =head2 values
 
-    {Str: *} → [*]
+    Hashref[*] → [*]
 
-Returns an ArrayRef of values from the supplied HashRef. The values are sorted
-by their keys.
+Returns an ArrayRef of values from the supplied HashRef. The values can be
+returned in any order.
 
-    values({ a => 1, b => 3, c => 2 }); # [1, 3, 2]
+    values({ a => 1, b => 3, c => 2 }); # [3, 2, 1]
 
 =cut
 
-sub values {
-    _curry1( sub { [ map { $_[0]->{$_} } sort keys %{$_[0]} ] }, @_ );
-}
+sub values { _curry1( sub { [ values %{$_[0]} ] }, @_ ) }
 
 =head2 where_eq
 
@@ -1629,7 +1625,7 @@ sub _to_string {
 
 # _uniq
 #
-#    [a] → {Str: a}
+#    [a] → HashRef[a]
 #
 # Given a list, returns a HashRef where the keys are a unique Str representation
 # of each element and the values are the (unique) elements.

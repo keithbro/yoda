@@ -787,6 +787,15 @@ The iterator function receives one argument: (seed).
 
     [a] → [a]
 
+Returns a new list containing only one copy of each element in the original
+list.
+
+Order is not preserved for performance reasons.
+
+    uniq([1, 1, 2, 1]); # [1, 2]
+    uniq([1, '1']);     # [1, '1']
+    uniq([[42], [42]]); # [[42]]
+
 ## union
 
     [*] → [*] → [*]
@@ -804,12 +813,12 @@ Order is not preserved for performance reasons.
 
 ## values
 
-    {Str: *} → [*]
+    Hashref[*] → [*]
 
-Returns an ArrayRef of values from the supplied HashRef. The values are sorted
-by their keys.
+Returns an ArrayRef of values from the supplied HashRef. The values can be
+returned in any order.
 
-    values({ a => 1, b => 3, c => 2 }); # [1, 3, 2]
+    values({ a => 1, b => 3, c => 2 }); # [3, 2, 1]
 
 ## where\_eq
 
