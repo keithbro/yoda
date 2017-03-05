@@ -16,8 +16,8 @@ our @EXPORT_OK = qw(
     contains converge curry_n divide equals F filter flatten flip group_by head
     identity if_else intersection is_defined juxt lt max memoize min multiply
     partition path pick pick_all product prop range reduce reduced reject
-    replace subtract sum T take to_lower to_upper transduce try_catch unapply
-    unfold union uniq values where_eq zip_with
+    replace subtract sum T take to_lower to_upper transduce transpose try_catch
+    unapply unfold union uniq values where_eq zip_with
 );
 
 =encoding utf-8
@@ -1272,6 +1272,19 @@ sub transduce {
 =head2 transpose
 
     [[a]] → [[a]]
+
+Transposes the rows and columns of a 2D list. When passed a list of n lists of
+length x, returns a list of x lists of length n.
+
+    transpose([[1, 'a'], [2, 'b'], [3, 'c']]),
+    [[1, 2, 3], ['a', 'b', 'c']],
+
+If some of the rows are shorter than the following rows, their elements are
+skipped:
+
+    transpose([[10, 11], [20], [], [30, 31, 32]]),
+    [[10, 20, 30], [11, 31], [32]],
+
 
 =cut
 

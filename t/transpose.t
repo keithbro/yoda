@@ -1,15 +1,15 @@
 use Test::Most;
 
-use Yoda;
+use Yoda qw(transpose);
 
 eq_or_diff(
-    Yoda::transpose([[1, 'a'], [2, 'b'], [3, 'c']]),
+    transpose([[1, 'a'], [2, 'b'], [3, 'c']]),
     [[1, 2, 3], ['a', 'b', 'c']],
     'transpose',
 );
 
 eq_or_diff(
-    Yoda::transpose([[10, 11], [20], [], [30, 31, 32]]),
+    transpose([[10, 11], [20], [], [30, 31, 32]]),
     [[10, 20, 30], [11, 31], [32]],
     'transpose lists of different sizes',
 );
