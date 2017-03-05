@@ -36,6 +36,18 @@ Or functionally,
 
 # FUNCTIONS
 
+## \_\_
+
+    * -> Yoda::__
+
+Returns an argument placeholder.
+
+    my $divide_by_10 = divide(__(), 10);
+    $divide_by_10->(100); # 10
+
+    my $greet = replace('{name}', __, 'Hello, {name}!');
+    $greet->('Alice'); # 'Hello, Alice!'
+
 ## add
 
     Num → Num → Num
@@ -52,6 +64,19 @@ Returns a function that always returns the given value.
 
     my $t = always('Tee');
     $t->(); # 'Tee'
+
+## any
+
+    (a → Bool) → [a] → Bool
+
+Returns 1 if at least one of the elements in the list match the predicate,
+undef otherwise.
+
+    my $less_than_0 = flip(lt())->(0);
+    my $less_than_2 = flip(lt())->(2);
+
+    any($less_than_0)->([1, 2]); # undef
+    any($less_than_2)->([1, 2]); # 1
 
 ## append
 
@@ -377,6 +402,17 @@ Returns the number of elements in the array.
     length([]); # 0
     length([1, 2, 3]); # 3
 
+## lt
+
+    a → a → Bool
+
+Returns 1 if the first argument is less than the second argument, undef
+otherwise.
+
+    lt(2, 1); # undef
+    lt(2, 2); # undef
+    lt(2, 3); # 1
+
 ## map
 
     Functor f => (a → b) → f a → f b
@@ -559,6 +595,34 @@ The complement of filter.
 
     reject($is_odd, {a => 1, b => 2, c => 3, d => 4});
     # {b => 2, d => 4}
+
+## replace
+
+    RegexpRef|Str -> Str|[Str] -> Str -> Str
+
+    (a -> Bool) -> a|[a] -> [a] -> [a]
+
+Given a $predicate, one or more $replacements, and an $original, replace
+matches in the original with the replacements.
+
+The $predicate can be a regular expression, a single value or a function.
+
+If $replacements is an ArrayRef, replacements will cease once all replacements
+have been used. Alternatively if $replacements is a single value, it will
+replace all matches.
+
+    replace('foo'  , 'bar'                  , 'foo foo foo'); # 'bar bar bar'
+    replace(qr/foo/, 'bar'                  , 'foo foo foo'); # 'bar bar bar'
+    replace(qr/foo/, [ 'bar' ]              , 'foo foo foo'); # 'bar foo foo'
+    replace('foo'  , [ 'bar', 'baz', 'bad' ], 'foo foo foo'); # 'bar baz bad'
+
+    my $original = [3, 7, 'x', 5, 'x', 'x', 9];
+    my $replacements = [0, 2];
+    my $predicate = equals('x');
+
+    replace($predicate, $replacements, $original); # [ 3, 7, 0, 5, 2, 'x', 9]
+
+    replace($predicate, 'y', $original); # [ 3, 7, 'y', 5, 'y', 'y', 9 ]
 
 ## subtract
 

@@ -12,11 +12,12 @@ use Try::Tiny;
 our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
-    add always append apply chain complement compose concat cond contains
-    converge divide equals F filter flatten flip group_by head identity if_else
-    intersection is_defined juxt max memoize min multiply partition path pick
-    pick_all product prop range reduce reduced reject subtract sum T take
-    to_lower to_upper transduce try_catch unapply unfold values zip_with
+    __ add always any append apply chain complement compose concat cond
+    contains converge divide equals F filter flatten flip group_by head
+    identity if_else intersection is_defined juxt lt max memoize min multiply
+    partition path pick pick_all product prop range reduce reduced reject
+    replace subtract sum T take to_lower to_upper transduce try_catch unapply
+    unfold values zip_with
 );
 
 =encoding utf-8
@@ -59,6 +60,24 @@ Or functionally,
 
 =head1 FUNCTIONS
 
+=head2 __
+
+    * -> Yoda::__
+
+Returns an argument placeholder.
+
+    my $divide_by_10 = divide(__(), 10);
+    $divide_by_10->(100); # 10
+
+    my $greet = replace('{name}', __, 'Hello, {name}!');
+    $greet->('Alice'); # 'Hello, Alice!'
+
+=cut
+
+sub __ {
+    return bless( { }, 'Yoda::__' );
+}
+
 =head2 add
 
     Num → Num → Num
@@ -83,6 +102,23 @@ Returns a function that always returns the given value.
 =cut
 
 sub always { _curry1( sub { my ($c) = @_; return sub { $c } }, @_ ) }
+
+=head2 any
+
+    (a → Bool) → [a] → Bool
+
+Returns 1 if at least one of the elements in the list match the predicate,
+undef otherwise.
+
+    my $less_than_0 = flip(lt())->(0);
+    my $less_than_2 = flip(lt())->(2);
+
+    any($less_than_0)->([1, 2]); # undef
+    any($less_than_2)->([1, 2]); # 1
+
+=cut
+
+sub any { _curry2( sub { _any(@_) }, @_ ) }
 
 =head2 append
 
@@ -644,6 +680,21 @@ Returns the number of elements in the array.
 
 sub length { _curry1( sub { scalar @{$_[0]} }, @_) }
 
+=head2 lt
+
+    a → a → Bool
+
+Returns 1 if the first argument is less than the second argument, undef
+otherwise.
+
+    lt(2, 1); # undef
+    lt(2, 2); # undef
+    lt(2, 3); # 1
+
+=cut
+
+sub lt { _curry2( sub { $_[0] < $_[1] }, @_ ) }
+
 =head2 map
 
     Functor f => (a → b) → f a → f b
@@ -973,6 +1024,54 @@ sub reject {
             grep { ! $predicate->($filterable->{$_}) }
             keys %$filterable
         };
+    }, @_);
+}
+
+=head2 replace
+
+    RegexpRef|Str -> Str|[Str] -> Str -> Str
+
+    (a -> Bool) -> a|[a] -> [a] -> [a]
+
+Given a $predicate, one or more $replacements, and an $original, replace
+matches in the original with the replacements.
+
+The $predicate can be a regular expression, a single value or a function.
+
+If $replacements is an ArrayRef, replacements will cease once all replacements
+have been used. Alternatively if $replacements is a single value, it will
+replace all matches.
+
+    replace('foo'  , 'bar'                  , 'foo foo foo'); # 'bar bar bar'
+    replace(qr/foo/, 'bar'                  , 'foo foo foo'); # 'bar bar bar'
+    replace(qr/foo/, [ 'bar' ]              , 'foo foo foo'); # 'bar foo foo'
+    replace('foo'  , [ 'bar', 'baz', 'bad' ], 'foo foo foo'); # 'bar baz bad'
+
+    my $original = [3, 7, 'x', 5, 'x', 'x', 9];
+    my $replacements = [0, 2];
+    my $predicate = equals('x');
+
+    replace($predicate, $replacements, $original); # [ 3, 7, 0, 5, 2, 'x', 9]
+
+    replace($predicate, 'y', $original); # [ 3, 7, 'y', 5, 'y', 'y', 9 ]
+
+=cut
+
+sub replace {
+    _curry3(sub {
+        my ($predicate, $replacements, $original) = @_;
+
+        return _replace_using_coderef(@_) if ref $predicate eq 'CODE';
+
+        my $regex = ref $predicate eq 'REGEXP' ? $predicate : qr/$predicate/;
+
+        if (ref $replacements) {
+            $original =~ s/$regex/$_/ for @$replacements;
+        } else {
+            $original =~ s/$regex/$replacements/g;
+        }
+
+        return $original;
     }, @_);
 }
 
@@ -1307,6 +1406,14 @@ sub zip_with {
     }, @_);
 }
 
+sub _any {
+    my ($predicate, $arrayref) = @_;
+    for my $element (@$arrayref) {
+        return 1 if $predicate->($element);
+    }
+    return undef;
+}
+
 sub _build_filter_reducer {
     my ($predicate) = @_;
 
@@ -1356,6 +1463,15 @@ sub _curry4 { _curry_n(4, @_) }
 sub _curry_n {
     my ($arity, $func, @args) = @_;
 
+    if (_any(\&_is_placeholder, \@args)) {
+        return sub {
+            my $new_args = _replace_using_coderef(
+                \&_is_placeholder, \@_, \@args,
+            );
+            $func->(@$new_args);
+        }
+    }
+
     if (scalar @args >= $arity) {
         return $func->(@args);
     }
@@ -1395,6 +1511,8 @@ sub _filter_hashref {
 
 sub _flatten { map { ref $_ ? _flatten($_) : $_ } @{$_[0]} }
 
+sub _is_placeholder { ref $_[0] eq 'Yoda::__' }
+
 sub _map_arrayref {
     my ($function, $arrayref_or_reducing_function) = @_;
 
@@ -1412,6 +1530,18 @@ sub _map_arrayref {
 sub _map_hashref {
     my ($function, $hashref) = @_;
     return { map { $_ => $function->($hashref->{$_}) } keys %$hashref };
+}
+
+sub _replace_using_coderef {
+    my ($p, $r, $list) = @_;
+
+    my $i = 0;
+
+    my $maybe_replace = ref $r
+        ? sub { $p->($_[0]) && @$r > $i ? $r->[$i++] : $_[0] }
+        : sub { $p->($_[0]) ? $r : $_[0] };
+
+    return [ map { $maybe_replace->($_) } @$list ];
 }
 
 sub _to_string {
