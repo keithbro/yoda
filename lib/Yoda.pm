@@ -1548,15 +1548,20 @@ sub _map_hashref {
 }
 
 sub _replace_using_coderef {
-    my ($p, $r, $list) = @_;
+    my ($predicate, $replacements, $array) = @_;
 
-    my $i = 0;
+    my @array_with_replacements = @$array;
+    my @replacements_left = ref $replacements
+        ? @$replacements : ($replacements);
 
-    my $maybe_replace = ref $r
-        ? sub { $p->($_[0]) && @$r > $i ? $r->[$i++] : $_[0] }
-        : sub { $p->($_[0]) ? $r : $_[0] };
+    for my $element (@array_with_replacements) {
+        last unless @replacements_left;
+        next unless $predicate->($element);
 
-    return [ map { $maybe_replace->($_) } @$list ];
+        $element = ref $replacements ? shift @replacements_left : $replacements;
+    }
+
+    return \@array_with_replacements;
 }
 
 sub _to_string {
