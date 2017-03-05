@@ -3,6 +3,7 @@ use 5.008001;
 use strict;
 use warnings;
 
+use autobox::universal qw();
 use Exporter 'import';
 use JSON::XS qw(encode_json);
 use List::Util qw();
@@ -17,7 +18,7 @@ our @EXPORT_OK = qw(
     identity if_else intersection is_defined juxt lt max memoize min multiply
     partition path pick pick_all product prop range reduce reduced reject
     replace subtract sum T take to_lower to_upper transduce transpose try_catch
-    unapply unfold union uniq values where_eq zip_with
+    type unapply unfold union uniq values where_eq zip_with
 );
 
 =encoding utf-8
@@ -1344,6 +1345,31 @@ sub try_catch {
                 $catcher->($_);
             };
         };
+    }, @_);
+}
+
+=head2 type
+
+    * -> Str
+
+Gives a single-word string description of the type of a value, returning such
+answers as 'Hash', 'Integer', 'Array', or 'Undef'.
+
+    type({}); # Hash
+    type(1); # Integer
+    type(1.0); # Float
+    type('1'); # String
+    type(undef); # Undef
+    type([]); # Array
+    type(qr/[A-z]/); # Regexp
+    type(type()); # Code
+    type(bless({}, 'Animal')), 'Animal';
+
+=cut
+
+sub type {
+    _curry1(sub {
+        ucfirst( lc( ref($_[0]) || autobox::universal::type($_[0]) ) );
     }, @_);
 }
 

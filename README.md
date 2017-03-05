@@ -773,6 +773,23 @@ the tryer and catcher functions must return the same type of results.
     try_catch(prop('x'), F())({x => 1}); # 1
     try_catch(prop('x'), F())(undef); # ''
 
+## type
+
+    * -> Str
+
+Gives a single-word string description of the type of a value, returning such
+answers as 'Hash', 'Integer', 'Array', or 'Undef'.
+
+    type({}); # Hash
+    type(1); # Integer
+    type(1.0); # Float
+    type('1'); # String
+    type(undef); # Undef
+    type([]); # Array
+    type(qr/[A-z]/); # Regexp
+    type(type()); # Code
+    type(bless({}, 'Animal')), 'Animal';
+
 ## unapply
 
     ([*…] → a) → (*… → a)
