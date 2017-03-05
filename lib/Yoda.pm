@@ -694,7 +694,7 @@ otherwise.
 
 =cut
 
-sub lt { _curry2( sub { $_[0] < $_[1] }, @_ ) }
+sub lt { _curry2( sub { ord($_[0]) < ord($_[1]) }, @_ ) }
 
 =head2 map
 
