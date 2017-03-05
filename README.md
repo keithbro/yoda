@@ -189,7 +189,8 @@ Returns 1 if the specified value is equal, in \`equals\` terms, to at least one
 element of the given list; or the empty string otherwise.
 
     contains(3, [1, 2, 3]); # 1
-    contains(4, [1, 2, 3]); # ''
+    contains(4, [1, 2, 3]); # undef
+    contains('3', [1, 2, 3]); # undef
     contains({ name: 'Fred' }, [{ name: 'Fred' }]); # 1
     contains([42], [[42]]); # 1
     contains('s', 'bars'); # 1
@@ -789,6 +790,17 @@ The iterator function receives one argument: (seed).
 ## union
 
     [*] → [*] → [*]
+
+Combines two lists into a set (i.e. no duplicates) composed of the elements of
+each list.
+
+Order is not preserved for performance reasons.
+
+    my $union = union([1, 2, 3], [2, 3, 4, '2']);
+
+    scalar @$union; # 5
+
+    $union; # [1, 2, 3, 4, '2'] (but probably not in this order)
 
 ## values
 

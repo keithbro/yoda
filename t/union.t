@@ -1,22 +1,19 @@
 use Test::Most;
 
-use lib 't/lib';
+use Yoda qw(contains union);
 
-use Yoda;
-use Yoda::Test;
+my $union = union([1, 2, 3], [2, 3, 4, '2']);
 
-my $tasks = Yoda::Test::tasks();
+is scalar @$union, 5, 'five elements in union';
+ok contains(2, $union), 'found numeric 2';
+ok contains('2', $union), 'found string 2';
+ok contains(3, $union), 'found numeric 3 - sanity';
+ok !contains('3', $union), 'no string 3 - sanity';
 
 cmp_bag(
-    Yoda::union([1, 2], [3]),
-    [1, 2, 3],
+    $union,
+    [1, 2, 3, 4, '2'],
     'union numbers',
-);
-
-cmp_bag(
-    Yoda::union($tasks, []),
-    $tasks,
-    'union',
 );
 
 done_testing;

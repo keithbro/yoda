@@ -17,7 +17,7 @@ our @EXPORT_OK = qw(
     identity if_else intersection is_defined juxt lt max memoize min multiply
     partition path pick pick_all product prop range reduce reduced reject
     replace subtract sum T take to_lower to_upper transduce try_catch unapply
-    unfold values where_eq zip_with
+    unfold union uniq values where_eq zip_with
 );
 
 =encoding utf-8
@@ -313,7 +313,8 @@ Returns 1 if the specified value is equal, in `equals` terms, to at least one
 element of the given list; or the empty string otherwise.
 
     contains(3, [1, 2, 3]); # 1
-    contains(4, [1, 2, 3]); # ''
+    contains(4, [1, 2, 3]); # undef
+    contains('3', [1, 2, 3]); # undef
     contains({ name: 'Fred' }, [{ name: 'Fred' }]); # 1
     contains([42], [[42]]); # 1
     contains('s', 'bars'); # 1
@@ -327,13 +328,13 @@ sub contains {
         my @list = ref($list_or_string)
             ? @$list_or_string
             : split(//, $list_or_string);
-        my $value_as_string = _to_string($value);
+        my $value_as_string = _to_string($value); # optimization
 
         for my $element (@list) {
             return 1 if _to_string($element) eq $value_as_string;
         }
 
-        return '';
+        return;
     }, @_);
 }
 
@@ -1401,9 +1402,25 @@ sub uniq {
 
     [*] → [*] → [*]
 
+Combines two lists into a set (i.e. no duplicates) composed of the elements of
+each list.
+
+Order is not preserved for performance reasons.
+
+    my $union = union([1, 2, 3], [2, 3, 4, '2']);
+
+    scalar @$union; # 5
+
+    $union; # [1, 2, 3, 4, '2'] (but probably not in this order)
+
 =cut
 
-sub union { _curry2( sub { uniq( [ map { @$_ } @_ ] ) }, @_ ) }
+sub union {
+    _curry2(sub {
+        my %h = map { _to_string($_) => $_ } @{$_[0]}, @{$_[1]};
+        return [ values %h ];
+    }, @_);
+}
 
 =head2 values
 
