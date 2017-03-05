@@ -3,15 +3,15 @@ use Test::Most;
 use Yoda qw(type);
 
 my %example_for_type = (
-    Hash    => {},
-    Integer => 1,
-    Float   => 1.0,
-    String  => '1',
-    Undef   => undef,
-    Array   => [],
-    Regexp  => qr/[A-z]/,
-    Code    => type(),
-    Animal  => bless({}, 'Animal'),
+    Hash            => {},
+    Integer         => 1,
+    Float           => 1.0,
+    String          => '1',
+    Undef           => undef,
+    Array           => [],
+    Regexp          => qr/[A-z]/,
+    Code            => type(),
+    'Animal::Dog'   => bless({}, 'Animal::Dog'),
 );
 
 for my $type (keys %example_for_type) {

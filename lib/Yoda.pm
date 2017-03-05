@@ -1363,13 +1363,15 @@ answers as 'Hash', 'Integer', 'Array', or 'Undef'.
     type([]); # Array
     type(qr/[A-z]/); # Regexp
     type(type()); # Code
-    type(bless({}, 'Animal')), 'Animal';
+    type(bless({}, 'Animal::Dog')), 'Animal::Dog';
 
 =cut
 
 sub type {
     _curry1(sub {
-        ucfirst( lc( ref($_[0]) || autobox::universal::type($_[0]) ) );
+        blessed($_[0]) || ucfirst(lc(
+            ref($_[0]) || autobox::universal::type($_[0])
+        ));
     }, @_);
 }
 

@@ -788,7 +788,7 @@ answers as 'Hash', 'Integer', 'Array', or 'Undef'.
     type([]); # Array
     type(qr/[A-z]/); # Regexp
     type(type()); # Code
-    type(bless({}, 'Animal')), 'Animal';
+    type(bless({}, 'Animal::Dog')), 'Animal::Dog';
 
 ## unapply
 
