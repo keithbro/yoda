@@ -210,6 +210,25 @@ the return value.
     my $strange_concat = converge(concat(), [to_upper(), to_lower()]);
     $strange_concat->("Yodel"); # YODELyodel
 
+## curry\_n
+
+    Number → (* → a) → (* → a)
+
+Returns a curried equivalent of the provided function, with the specified
+arity.
+
+The special placeholder function \_\_ may be used to specify "gaps", allowing
+partial application of any combination of arguments, regardless of their
+positions.
+
+    my $sum_args = sub { sum(\@_) };
+
+    my $curried_add_four_numbers = curry_n(4, $sum_args);
+    my $f = $curried_add_four_numbers->(1, 2); # CodeRef
+    my $g = $f->(3); # CodeRef
+
+    $g->(4); # 10
+
 ## divide
 
     Num → Num → Num
