@@ -14,7 +14,7 @@ our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
     __ add always any append apply chain complement compose concat cond
-    contains converge divide equals F filter flatten flip group_by head
+    contains converge curry_n divide equals F filter flatten flip group_by head
     identity if_else intersection is_defined juxt lt max memoize min multiply
     partition path pick pick_all product prop range reduce reduced reject
     replace subtract sum T take to_lower to_upper transduce try_catch unapply
@@ -365,6 +365,50 @@ sub converge {
             return $converging_function->(@args);
         };
     }, @_);
+}
+
+=head2 curry_n
+
+    Number → (* → a) → (* → a)
+
+Returns a curried equivalent of the provided function, with the specified
+arity.
+
+The special placeholder function __ may be used to specify "gaps", allowing
+partial application of any combination of arguments, regardless of their
+positions.
+
+    my $sum_args = sub { sum(\@_) };
+
+    my $curried_add_four_numbers = curry_n(4, $sum_args);
+    my $f = $curried_add_four_numbers->(1, 2); # CodeRef
+    my $g = $f->(3); # CodeRef
+
+    $g->(4); # 10
+
+=cut
+
+sub curry_n {
+    my ($arity, $func) = @_;
+
+    return sub {
+        my @args = @_;
+
+        if (_any(\&_is_placeholder, \@args)) {
+            return sub {
+                my $new_args = _replace_using_coderef(
+                    \&_is_placeholder, \@_, \@args,
+                );
+                return _curry_n_call($arity, $func, @$new_args);
+            }
+        }
+
+        my $arity_diff = $arity - @args;
+
+        return $func->(@args) if $arity_diff < 1;
+
+        return curry_n($arity_diff, sub { $func->(@args, @_) });
+    };
 }
 
 =head2 divide
@@ -996,7 +1040,7 @@ sub reduced { bless( { value => $_[0] }, 'Yoda::Reduced' ) }
 =cut
 
 sub reduce_by {
-    _curry_n(4, sub {
+    _curry4(sub {
         my ($value_func, $initial_value, $key_func, $elements) = @_;
 
         my %h;
@@ -1470,28 +1514,14 @@ sub _build_take_reducer {
     };
 }
 
-sub _curry1 { _curry_n(1, @_) }
-sub _curry2 { _curry_n(2, @_) }
-sub _curry3 { _curry_n(3, @_) }
-sub _curry4 { _curry_n(4, @_) }
+sub _curry1 { _curry_n_call(1, @_) }
+sub _curry2 { _curry_n_call(2, @_) }
+sub _curry3 { _curry_n_call(3, @_) }
+sub _curry4 { _curry_n_call(4, @_) }
 
-sub _curry_n {
+sub _curry_n_call {
     my ($arity, $func, @args) = @_;
-
-    if (_any(\&_is_placeholder, \@args)) {
-        return sub {
-            my $new_args = _replace_using_coderef(
-                \&_is_placeholder, \@_, \@args,
-            );
-            $func->(@$new_args);
-        }
-    }
-
-    if (scalar @args >= $arity) {
-        return $func->(@args);
-    }
-
-    return sub { $func->(@args, @_) };
+    return curry_n($arity, $func)->(@args);
 }
 
 sub _filter_arrayref {
