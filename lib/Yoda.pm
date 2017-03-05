@@ -1133,6 +1133,17 @@ sub replace {
 
     Num → Num → Num
 
+Subtracts its second argument from its first argument.
+
+    subtract(10, 8); # 2
+
+    my $minus_5 = subtract(__, 5);
+    $minus_5->(17); # 12
+
+    my $complementary_angle = subtract(90);
+    $complementary_angle->(30); # 60
+    $complementary_angle->(72); # 18
+
 =cut
 
 sub subtract { _curry2( sub { $_[0] - $_[1] }, @_ ) }
