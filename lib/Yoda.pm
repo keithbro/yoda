@@ -14,12 +14,12 @@ our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
     __ add always any append apply chain complement compose concat cond
-    contains converge curry_n divide equals F filter flatten flip group_by head
-    identity if_else inc intersection is_defined is_empty juxt lt max memoize
-    min multiply negate partition path pick pick_all pipe product prop range
-    reduce reduced reject replace subtract sum T take to_lower to_upper
-    transduce transpose try_catch type unapply unfold union uniq values where_eq
-    zip_with
+    contains converge curry_n divide equals F filter find flatten flip group_by
+    head identity if_else inc intersection is_defined is_empty juxt lt max
+    memoize min multiply negate partition path pick pick_all pipe product prop
+    prop_eq range reduce reduced reject replace subtract sum T take to_lower
+    to_upper transduce transpose try_catch type unapply unfold union uniq values
+    where_eq zip_with
 );
 
 =encoding utf-8
@@ -479,6 +479,33 @@ sub filter {
         return ref($filterable) eq 'HASH'
             ? _filter_hashref(@_)
             : _filter_arrayref(@_);
+    }, @_);
+}
+
+=head2 find
+
+    (a → Bool) → [a] → a | undef
+
+Returns the first element of the list which matches the predicate, or undef if
+no element matches.
+
+    my $xs = [{a => 1}, {a => 2}, {a => 3}];
+
+    find(prop_eq('a', 2))->($xs); # {a => 2}
+
+    find(prop_eq('a', 4))->($xs); # undef
+
+=cut
+
+sub find {
+    _curry2(sub {
+        my ($predicate, $arrayref) = @_;
+
+        for (@$arrayref) {
+            return $_ if $predicate->($_);
+        }
+
+        return undef;
     }, @_);
 }
 
@@ -1054,6 +1081,22 @@ sub prop {
 
         die 'second argument must be a HashRef or blessed';
     }, @_)
+}
+
+=head2 prop_eq
+
+    Str → a → HashRef → Bool
+
+Returns 1 if the specified object property is equal, in equals terms, to the
+given value; empty string otherwise.
+
+    prop_eq('a', 2)->({ a => 2 }); # 1
+    prop_eq('a', 4)->({ a => 2 }); # ''
+
+=cut
+
+sub prop_eq {
+    _curry3( sub { equals( prop($_[0], $_[2]), $_[1] ) }, @_ );
 }
 
 =head2 range

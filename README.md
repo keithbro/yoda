@@ -275,6 +275,19 @@ predicate.
 
     filter($is_even, {a => 1, b => 2, c => 3, d => 4}); # {b => 2, d => 4}
 
+## find
+
+    (a → Bool) → [a] → a | undef
+
+Returns the first element of the list which matches the predicate, or undef if
+no element matches.
+
+    my $xs = [{a => 1}, {a => 2}, {a => 3}];
+
+    find(prop_eq('a', 2))->($xs); # {a => 2}
+
+    find(prop_eq('a', 4))->($xs); # undef
+
 ## flatten
 
     [a] → [b]
@@ -622,6 +635,16 @@ value for that $key. Equivalent to:
     prop('x', {x => 100}); # 100
     prop('x', {}); # undef
     prop('x', undef); # throws exception
+
+## prop\_eq
+
+    Str → a → HashRef → Bool
+
+Returns 1 if the specified object property is equal, in equals terms, to the
+given value; empty string otherwise.
+
+    prop_eq('a', 2)->({ a => 2 }); # 1
+    prop_eq('a', 4)->({ a => 2 }); # ''
 
 ## range
 
