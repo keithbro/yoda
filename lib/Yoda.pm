@@ -827,6 +827,8 @@ values, and returns a functor of the same shape.
 Yoda provides suitable map implementations for ArrayRef and HashRef, so this
 function may be applied to [1, 2, 3] or {x => 1, y => 2, z => 3}.
 
+Dispatches to the map method of the second argument, if present.
+
     my $double = sub { shift() * 2 };
 
     Yoda::map($double, [1, 2, 3]) # [2, 4, 6]
@@ -838,7 +840,12 @@ function may be applied to [1, 2, 3] or {x => 1, y => 2, z => 3}.
 sub map {
     _curry2(sub {
         my ($function, $functor) = @_;
-        return ref($functor) eq 'HASH' ? _map_hashref(@_) : _map_arrayref(@_);
+
+        return
+            ref($functor) =~ m/^(ARRAY|CODE)$/ ? _map_arrayref_or_reducing_function(@_) :
+            ref($functor) eq 'HASH' ? _map_hashref(@_) :
+            blessed($functor) ? $functor->map($function) :
+                die 'second argument must be a HashRef, ArrayRef, CodeRef or blessed';
     }, @_);
 }
 
@@ -1767,7 +1774,7 @@ sub _flatten { map { ref $_ ? _flatten($_) : $_ } @{$_[0]} }
 
 sub _is_placeholder { ref $_[0] eq 'Yoda::__' }
 
-sub _map_arrayref {
+sub _map_arrayref_or_reducing_function {
     my ($function, $arrayref_or_reducing_function) = @_;
 
     my $ref = ref($arrayref_or_reducing_function);

@@ -487,6 +487,8 @@ values, and returns a functor of the same shape.
 Yoda provides suitable map implementations for ArrayRef and HashRef, so this
 function may be applied to \[1, 2, 3\] or {x => 1, y => 2, z => 3}.
 
+Dispatches to the map method of the second argument, if present.
+
     my $double = sub { shift() * 2 };
 
     Yoda::map($double, [1, 2, 3]) # [2, 4, 6]
