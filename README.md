@@ -375,6 +375,14 @@ depending upon the result of the condition predicate.
     $pronunce_syllable->('ewe'); # yo
     $pronunce_syllable->('no'); # no
 
+## inc
+
+    Num → Num
+
+Increments its argument.
+
+    inc(5); # 6
+
 ## intersection
 
     [*] → [*] → [*]
@@ -515,6 +523,14 @@ Multiples two numbers.
 
     multiply(3, -7); # -21
 
+## negate
+
+    Num -> Num
+
+Negates its argument.
+
+    negate(-7); # 7
+
 ## partition
 
     Filterable f => (a → Bool) → f a → [f a, f a]
@@ -574,6 +590,21 @@ that don't exist.
     pick_all(['a', 'e', 'f'], $hash_ref); # { a => 1, e => 0, f => undef }
 
     pick_all([0, 2], $array_ref); # { 0 => 'a', 2 => 'c' }
+
+## pipe
+
+    (((a, b, …, n) → o), (o → p), …, (x → y), (y → z)) → ((a, b, …, n) → z)
+
+Performs left-to-right function composition. The leftmost function may have any
+arity; the remaining functions must be unary.
+
+Note: The result of pipe is not automatically curried.
+
+    my $pow = curry_n(2, sub { $_[0] ** $_[1] });
+
+    my $f = pipe($pow, negate(), inc());
+
+    $f->(3, 4); # -(3^4) + 1
 
 ## product
 
