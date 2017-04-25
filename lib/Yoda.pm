@@ -489,6 +489,8 @@ sub filter {
 Returns the first element of the list which matches the predicate, or undef if
 no element matches.
 
+Dispatches to the find method of the second argument, if present.
+
     my $xs = [{a => 1}, {a => 2}, {a => 3}];
 
     find(prop_eq('a', 2))->($xs); # {a => 2}
@@ -499,9 +501,11 @@ no element matches.
 
 sub find {
     _curry2(sub {
-        my ($predicate, $arrayref) = @_;
+        my ($predicate, $object) = @_;
 
-        for (@$arrayref) {
+        return $object->find($predicate) if blessed($object);
+
+        for (@$object) {
             return $_ if $predicate->($_);
         }
 
