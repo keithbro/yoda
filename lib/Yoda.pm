@@ -15,10 +15,11 @@ our $VERSION = "0.01";
 our @EXPORT_OK = qw(
     __ add always any append apply chain complement compose concat cond
     contains converge curry_n divide equals F filter flatten flip group_by head
-    identity if_else intersection is_defined is_empty juxt lt max memoize min
-    multiply partition path pick pick_all product prop range reduce reduced
-    reject replace subtract sum T take to_lower to_upper transduce transpose
-    try_catch type unapply unfold union uniq values where_eq zip_with
+    identity if_else inc intersection is_defined is_empty juxt lt max memoize
+    min multiply negate partition path pick pick_all pipe product prop range
+    reduce reduced reject replace subtract sum T take to_lower to_upper
+    transduce transpose try_catch type unapply unfold union uniq values where_eq
+    zip_with
 );
 
 =encoding utf-8
@@ -630,6 +631,18 @@ sub if_else {
     }, @_);
 }
 
+=head2 inc
+
+    Num → Num
+
+Increments its argument.
+
+    inc(5); # 6
+
+=cut
+
+sub inc { _curry1( sub { $_[0] + 1 }, @_ ) }
+
 =head2 intersection
 
     [*] → [*] → [*]
@@ -871,6 +884,18 @@ Multiples two numbers.
 
 sub multiply { _curry2( sub { $_[0] * $_[1] }, @_ ) }
 
+=head2 negate
+
+    Num -> Num
+
+Negates its argument.
+
+    negate(-7); # 7
+
+=cut
+
+sub negate { _curry1( sub { $_[0] * -1 }, @_ ) }
+
 =head2 partition
 
     Filterable f => (a → Bool) → f a → [f a, f a]
@@ -968,6 +993,33 @@ sub pick_all {
 
         die 'second argument must be an ArrayRef or HashRef';
     }, @_);
+}
+
+=head2 pipe
+
+    (((a, b, …, n) → o), (o → p), …, (x → y), (y → z)) → ((a, b, …, n) → z)
+
+Performs left-to-right function composition. The leftmost function may have any
+arity; the remaining functions must be unary.
+
+Note: The result of pipe is not automatically curried.
+
+    my $pow = curry_n(2, sub { $_[0] ** $_[1] });
+
+    my $f = pipe($pow, negate(), inc());
+
+    $f->(3, 4); # -(3^4) + 1
+
+=cut
+
+sub pipe {
+    my @fns = @_;
+
+    return sub {
+        List::Util::reduce {
+            $b->(ref $a ? @$a : $a)
+        } \@_, @fns
+    };
 }
 
 =head2 product
