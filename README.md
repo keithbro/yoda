@@ -282,6 +282,8 @@ predicate.
 Returns the first element of the list which matches the predicate, or undef if
 no element matches.
 
+Dispatches to the find method of the second argument, if present.
+
     my $xs = [{a => 1}, {a => 2}, {a => 3}];
 
     find(prop_eq('a', 2))->($xs); # {a => 2}
