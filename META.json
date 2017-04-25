@@ -42,7 +42,8 @@
       },
       "runtime" : {
          "requires" : {
-            "JSON::XS" : "0",
+            "JSON" : "0",
+            "Try::Tiny" : "0",
             "autobox" : "0",
             "perl" : "5.008001"
          }

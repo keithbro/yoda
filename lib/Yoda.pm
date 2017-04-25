@@ -5,7 +5,7 @@ use warnings;
 
 use autobox::universal qw();
 use Exporter 'import';
-use JSON::XS qw(encode_json);
+use JSON qw(encode_json);
 use List::Util qw();
 use Scalar::Util qw(blessed);
 use Try::Tiny;
