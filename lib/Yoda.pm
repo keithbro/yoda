@@ -302,7 +302,7 @@ sub cond {
                 return $pair->[1]->($value) if $pair->[0]->($value);
             }
 
-            return undef;
+            return;
         };
     }, @_);
 }
@@ -509,7 +509,7 @@ sub find {
             return $_ if $predicate->($_);
         }
 
-        return undef;
+        return;
     }, @_);
 }
 
@@ -1683,10 +1683,12 @@ sub zip_with {
 
 sub _any {
     my ($predicate, $arrayref) = @_;
+
     for my $element (@$arrayref) {
         return 1 if $predicate->($element);
     }
-    return undef;
+
+    return;
 }
 
 sub _build_filter_reducer {
