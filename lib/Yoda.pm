@@ -959,18 +959,30 @@ sub partition {
 
 =head2 path
 
-    [Idx] → {a} → a | Undefined
-    Idx = String | Int
+    [Idx] → Ref → a | Undef
+    Idx = Str | Int
+    Ref = ArrayRef | HashRef
 
-Retrieve the value at a given path.
+Retrieve the value at a given path in the data structure, which can be an
+ArrayRef or a HashRef.
 
-    path(['a', 'b'], {a => {b => 2}}); # 2
-    path(['a', 'b'], {c => {b => 2}}); # undef
+    path(['a', 'b'], {a => {b => 2}});   # 2
+    path(['a', 'b'], {c => {b => 2}});   # undef
+    path(['n', -1], { n => [1, 2, 3] }); # 3
 
 =cut
 
 sub path {
-    _curry2( sub { reduce( sub { $_[0]->{$_[1]} }, $_[1], $_[0] ) }, @_);
+    _curry2(
+        sub {
+            my ($keys, $ref) = @_;
+
+            reduce(
+                sub { ref $_[0] eq 'ARRAY' ? $_[0]->[$_[1]] : $_[0]->{$_[1]} },
+                $ref, $keys,
+            );
+        }, @_,
+    );
 }
 
 =head2 pick

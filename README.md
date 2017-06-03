@@ -564,13 +564,16 @@ the predicate, respectively.
 
 ## path
 
-    [Idx] → {a} → a | Undefined
-    Idx = String | Int
+    [Idx] → Ref → a | Undef
+    Idx = Str | Int
+    Ref = ArrayRef | HashRef
 
-Retrieve the value at a given path.
+Retrieve the value at a given path in the data structure, which can be an
+ArrayRef or a HashRef.
 
-    path(['a', 'b'], {a => {b => 2}}); # 2
-    path(['a', 'b'], {c => {b => 2}}); # undef
+    path(['a', 'b'], {a => {b => 2}});   # 2
+    path(['a', 'b'], {c => {b => 2}});   # undef
+    path(['n', -1], { n => [1, 2, 3] }); # 3
 
 ## pick
 
