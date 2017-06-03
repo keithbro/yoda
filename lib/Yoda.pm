@@ -13,13 +13,13 @@ use Try::Tiny;
 our $VERSION = "0.01";
 
 our @EXPORT_OK = qw(
-    __ add always any append apply chain complement compose concat cond
-    contains converge curry_n divide equals F filter find flatten flip group_by
-    head identity if_else inc intersection is_defined is_empty juxt lt max
-    memoize min multiply negate partition path pick pick_all pipe product prop
-    prop_eq range reduce reduced reject replace subtract sum T take to_lower
-    to_upper transduce transpose try_catch type unapply unfold union uniq values
-    where_eq zip_with
+    __ add always any append apply assoc assoc_path chain complement compose
+    concat cond contains converge curry_n divide equals F filter find flatten
+    flip group_by head identity if_else inc intersection is_defined is_empty
+    juxt lt max memoize min multiply negate partition path pick pick_all pipe
+    product prop prop_eq range reduce reduced reject replace subtract sum T take
+    to_lower to_upper transduce transpose try_catch type unapply unfold union
+    uniq values where_eq zip_with
 );
 
 =encoding utf-8
@@ -150,6 +150,68 @@ fixed-arity function from a variadic function.
 =cut
 
 sub apply { _curry2( sub { $_[0]->(@{$_[1]}) }, @_) }
+
+=head2 assoc
+
+    Idx → a → Ref → Ref
+    Idx = Str | Int
+    Ref = ArrayRef | HashRef
+
+Given a key, a value and either a HashRef or an ArrayRef, return a copy of the
+Ref with the value set for the given key.
+
+    assoc('c', 3, {a => 1, b => 2}); # {a => 1, b => 2, c => 3}
+
+    assoc(-1, 42, [1, 2, 3, 4, 5]); # [1, 2, 3, 4, 42]
+
+=cut
+
+sub assoc {
+    _curry3(sub {
+        my ($key, $value, $ref) = @_;
+
+        return { %$ref, $key => $value } if ref $ref eq 'HASH';
+
+        my @copy = @$ref;
+        $copy[$key] = $value;
+        return \@copy;
+    }, @_);
+}
+
+=head2 assoc_path
+
+    [Idx] → a → Ref → Ref
+    Idx = Str | Int
+    Ref = ArrayRef | HashRef
+
+Given a path represented by a list of keys, a value and either a HashRef or an
+ArrayRef, return a copy of the Ref with the value set for the given path.
+
+    assoc_path(['a', 'b', 'c'], 42, {a => {b => {c => 0}}});
+    # {a => {b => {c => 42}}}
+
+    assoc_path(['a', 'b', 'c'], 42, {a => 5});
+    # {a => {b => {c => 42}}}
+
+    assoc_path(['n', -1], 42, { n => [1, 2, 3, 4, 5] });
+    # { n => [ 1, 2, 3, 4, 42 ] },
+
+=cut
+
+sub assoc_path {
+    _curry3(sub {
+        my ($keys, $value, $ref) = @_;
+
+        scalar @$keys or return $value;
+
+        my ($key, @rest) = @$keys;
+
+        ref $ref or $ref = { };
+        my $next_ref = ref $ref eq 'HASH' ? $ref->{$key} : $ref->[$key];
+
+        return assoc($key, assoc_path(\@rest, $value, $next_ref), $ref);
+    }, @_);
+}
 
 =head2 chain
 

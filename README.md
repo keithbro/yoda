@@ -99,6 +99,37 @@ fixed-arity function from a variadic function.
     my $numbers = [1, 2, 3, -99, 42, 6, 7];
     apply(\&List::Util::max, $numbers); # 42
 
+## assoc
+
+    Idx → a → Ref → Ref
+    Idx = Str | Int
+    Ref = ArrayRef | HashRef
+
+Given a key, a value and either a HashRef or an ArrayRef, return a copy of the
+Ref with the value set for the given key.
+
+    assoc('c', 3, {a => 1, b => 2}); # {a => 1, b => 2, c => 3}
+
+    assoc(-1, 42, [1, 2, 3, 4, 5]); # [1, 2, 3, 4, 42]
+
+## assoc\_path
+
+    [Idx] → a → Ref → Ref
+    Idx = Str | Int
+    Ref = ArrayRef | HashRef
+
+Given a path represented by a list of keys, a value and either a HashRef or an
+ArrayRef, return a copy of the Ref with the value set for the given path.
+
+    assoc_path(['a', 'b', 'c'], 42, {a => {b => {c => 0}}});
+    # {a => {b => {c => 42}}}
+
+    assoc_path(['a', 'b', 'c'], 42, {a => 5});
+    # {a => {b => {c => 42}}}
+
+    assoc_path(['n', -1], 42, { n => [1, 2, 3, 4, 5] });
+    # { n => [ 1, 2, 3, 4, 42 ] },
+
 ## chain
 
     Chain m => (a → m b) → m a → m b
