@@ -172,9 +172,13 @@ sub assoc {
 
         return { %$ref, $key => $value } if ref $ref eq 'HASH';
 
-        my @copy = @$ref;
-        $copy[$key] = $value;
-        return \@copy;
+        if (ref $ref eq 'ARRAY') {
+            my @copy = @$ref;
+            $copy[$key] = $value;
+            return \@copy;
+        }
+
+        die "Can't associate the value($value) to ref($ref)";
     }, @_);
 }
 
@@ -202,14 +206,24 @@ sub assoc_path {
     _curry3(sub {
         my ($keys, $value, $ref) = @_;
 
-        scalar @$keys or return $value;
+        scalar @$keys or return $ref;
+
+        if (@$keys == 1) {
+            return assoc($keys->[0], $value, $ref);
+        }
 
         my ($key, @rest) = @$keys;
 
-        ref $ref or $ref = { };
-        my $next_ref = ref $ref eq 'HASH' ? $ref->{$key} : $ref->[$key];
+        my $next_ref =
+            ref $ref eq 'HASH' ? $ref->{$key} :
+            ref $ref eq 'ARRAY' ? $ref->[$key] : die 'wtf';
 
-        return assoc($key, assoc_path(\@rest, $value, $next_ref), $ref);
+        return assoc_path(
+            [ $keys->[0] ],
+            assoc_path(\@rest, $value, $next_ref || {}),
+            $ref,
+        );
+
     }, @_);
 }
 
